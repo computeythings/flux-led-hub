@@ -1,0 +1,26 @@
+{
+  "name": "flux-hub",
+  "version": "1.0.0",
+  "description": "Flux Wifi LED Hub",
+  "main": "server.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "node ./tests/testall.js",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "Flux",
+    "Automation",
+    "Smart",
+    "LED"
+  ],
+  "author": "Bryan Gonnella",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "fs": "0.0.1-security"
+  }
+}
