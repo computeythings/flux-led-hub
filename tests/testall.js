@@ -13,14 +13,13 @@ console.log('Turning off lights...');
 controller.turnOff(b1);
 controller.turnOff(b2);
 controller.turnOff(b3);
-
 setTimeout(function() {
   console.log('Turning on lights...');
 
   controller.turnOn(b1);
   controller.turnOn(b2);
   controller.turnOn(b3);
-}, 5000);
+}, 4000);
 
 setTimeout(function() {
   console.log('Finished tests - closing sockets.');
@@ -28,4 +27,4 @@ setTimeout(function() {
   b1.end();
   b2.end();
   b3.end();
-}, 7000);
+}, 8000);

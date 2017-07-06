@@ -14,34 +14,15 @@ var devices = [];
 var port;
 var lights;
 
-/*
-  Main function run when server is started
-*/
-function init() {
-  env('.env'); // parse environment variables from .env file
-
-  port = process.env.PORT;
-  lights = process.env.BULBS.split(' ');
-
-  for (var i = 0; i < lights.length; i++) {
-    var soc = require('net').Socket();
-    soc.connect(5577, lights[i]);
-    devices.push(soc);
-  }
-
-  app.listen(port);
-  console.log('Listening at http://localhost:' + port);
-}
-
 function lightsOn() {
   for(var i = 0; i < devices.length; i++) {
-    controller.turnOn(devices[i]);
+    devices[i].turnOn();
   }
 }
 
 function lightsOff() {
   for(var i = 0; i < devices.length; i++) {
-    controller.turnOff(devices[i]);
+    devices[i].turnOff();
   }
 }
 
@@ -66,5 +47,23 @@ app.post('/api/off/', (req,res) => {
   res.writeHead(200, {'Content-Type': 'text/plain'});
   res.end('turning off lights');
 });
+
+
+/*
+  Main function run when server is started
+*/
+function init() {
+  env('.env'); // parse environment variables from .env file
+
+  port = process.env.PORT;
+  lights = process.env.BULBS.split(' ');
+
+  for (var i = 0; i < lights.length; i++) {
+    devices.push(new controller.WifiLedBulb(lights[i]));
+  }
+
+  app.listen(port);
+  console.log('Listening at http://localhost:' + port);
+}
 
 init();
