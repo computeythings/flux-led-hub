@@ -24,7 +24,6 @@ function setAPIKey() {
 
   var envData = fs.readFileSync('.env').toString().split("\n");
   for(var line in envData) {
-    console.log(envData[line]);
     if(envData[line] == 'APIKEY=') {
       console.log('\nwriting new API key to file: ' + newKey);
       envData[line] = envData[line].concat(newKey);
