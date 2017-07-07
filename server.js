@@ -19,6 +19,7 @@ var port;
 var lights;
 var apikey;
 
+// This will only be run when the APIKEY line in .env is empty
 function setAPIKey() {
   var newKey = keygen.apikey(26); // 26 character API key
 
@@ -39,14 +40,14 @@ function setAPIKey() {
 }
 
 function lightsOn() {
-  for(var i = 0; i < devices.length; i++) {
-    devices[i].turnOn();
+  for(var bulb in devices) {
+    devices[bulb].turnOn();
   }
 }
 
 function lightsOff() {
-  for(var i = 0; i < devices.length; i++) {
-    devices[i].turnOff();
+  for(var bulb in devices) {
+    devices[bulb].turnOff();
   }
 }
 
@@ -65,6 +66,9 @@ function toggleLights() {
   allOn ? lightsOff():lightsOn();
 }
 
+//
+// ROUTING
+//
 app.get('/', (req,res) => {
   console.log('GET /');
   var html = fs.readFileSync('public/index.html');
@@ -74,27 +78,39 @@ app.get('/', (req,res) => {
 
 app.post('/api/on/', (req,res) => {
   console.log('POST /api/on/');
-  console.log('access_token: ' + req.body.access_token);
-  lightsOn();
-  res.writeHead(200, {'Content-Type': 'text/plain'});
-  res.end('turning on lights\n');
+  if(req.body.access_token === apikey) {
+    lightsOn();
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('turning on ' + lights.length + ' lights\n');
+  } else {
+    res.writeHead(400, {'Content-Type': 'text/plain'});
+    res.end('Invalid API Key\n');
+  }
 });
 
 app.post('/api/off/', (req,res) => {
   console.log('POST /api/off/');
-  console.log('access_token: ' + req.body.access_token);
-  lightsOff();
-  res.writeHead(200, {'Content-Type': 'text/plain'});
-  res.end('turning off lights\n');
+  if(req.body.access_token === apikey) {
+    lightsOff();
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('turning off ' + lights.length + ' lights\n');
+  } else {
+    res.writeHead(400, {'Content-Type': 'text/plain'});
+    res.end('Invalid API Key\n');
+  }
 });
 
 app.post('/api/toggle', (req,res) => {
   console.log('POST /api/toggle/');
-  console.log('access_token: ' + apikey);
-  toggleLights();
-  res.writeHead(200, {'Content-Type': 'text/plain'});
-  res.end('toggling lights\n');
-})
+  if(req.body.access_token === apikey) {
+    toggleLights();
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('toggling ' + lights.length + ' lights\n');
+  } else {
+    res.writeHead(400, {'Content-Type': 'text/plain'});
+    res.end('Invalid API Key\n');
+  }
+});
 
 
 /*
@@ -102,18 +118,19 @@ app.post('/api/toggle', (req,res) => {
 */
 function init() {if(!process.env.APIKEY)
   // parse environment variables from .env file
-  env('.env', {verbose: true, overwrite: true, raise: false, logger: console});
+  env('.env', {verbose: true, overwrite: false, raise: false, logger: console});
 
   // generate API key if one does not exist
-  port = process.env.PORT;
-  lights = process.env.BULBS.split(' ');
   apikey = process.env.APIKEY || setAPIKey();
+  lights = process.env.BULBS.split(' ');
+  var port = process.env.PORT;
+  var listenIP = process.env.IP;
 
-  for (var i = 0; i < lights.length; i++) {
-    devices.push(new controller.WifiLedBulb(lights[i]));
+  for (var bulb in lights) {
+    devices.push(new controller.WifiLedBulb(lights[bulb]));
   }
 
-  app.listen(port);
+  app.listen(port, listenIP);
   console.log('Listening at http://localhost:' + port);
 }
 

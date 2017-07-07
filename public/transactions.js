@@ -9,10 +9,13 @@ function lightPost(element,url) {
     contentType: "application/json; charset=utf-8",
     dataType: "json",
     success: function(result) {
-      console.log(result);
+      console.log(result.responseText);
     },
-    failure: function(result){
-      console.log(result);
+    failure: function(result) {
+      console.log(result.responseText);
+    },
+    error: function(result) {
+      console.log(result.responseText);
     }
   });
 }
