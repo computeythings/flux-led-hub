@@ -1,5 +1,6 @@
 'use strict'
 const controller = require('./app/controller');
+const keygen = require('./build/Release/keygen');
 const env = require('node-env-file');
 const express = require('express');
 const fs = require('fs');
@@ -13,6 +14,7 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Globals
+const APIKEY = keygen.apikey(26);
 var devices = [];
 var port;
 var lights;
@@ -46,7 +48,6 @@ function toggleLights() {
 
 app.get('/', (req,res) => {
   console.log('GET /');
-
   var html = fs.readFileSync('public/index.html');
   res.writeHead(200, {'Content-Type': 'text/html'});
   res.end(html);
@@ -70,7 +71,7 @@ app.post('/api/off/', (req,res) => {
 
 app.post('/api/toggle', (req,res) => {
   console.log('POST /api/toggle/');
-  console.log('access_token: ' + req.access_token);
+  console.log('access_token: ' + req.body.access_token);
   toggleLights();
   res.writeHead(200, {'Content-Type': 'text/plain'});
   res.end('toggling lights\n');

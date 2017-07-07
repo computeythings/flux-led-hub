@@ -3,11 +3,15 @@ function lightPost(element,url) {
   $.ajax({
     type: "POST",
     url: "/api/" + url,
-    access_token: $("#access_token").val(),
+    data: JSON.stringify({
+       'access_token': $("#access_token").text(),
+     }),
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
     success: function(result) {
       console.log(result);
     },
-    error: function(result){
+    failure: function(result){
       console.log(result);
     }
   });
