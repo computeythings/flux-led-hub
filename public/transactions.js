@@ -23,4 +23,9 @@ $(document).ready(function() {
     e.preventDefault();
     lightPost($(this), 'off/');
   });
+
+  $("#toggle-btn").click(function(e) {
+    e.preventDefault();
+    lightPost($(this), 'toggle/');
+  });
 });
