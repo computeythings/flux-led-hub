@@ -14,10 +14,30 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Globals
-const APIKEY = keygen.apikey(26);
 var devices = [];
 var port;
 var lights;
+var apikey;
+
+function setAPIKey() {
+  var newKey = keygen.apikey(26); // 26 character API key
+
+  var envData = fs.readFileSync('.env').toString().split("\n");
+  for(var line in envData) {
+    console.log(envData[line]);
+    if(envData[line] == 'APIKEY=') {
+      console.log('\nwriting new API key to file: ' + newKey);
+      envData[line] = envData[line].concat(newKey);
+    }
+  }
+  var newEnv = envData.join("\n");
+  fs.writeFileSync('.env', newEnv, { flag: 'w' },function(err) {
+    if(err) console.log('Failed to write');
+    else console.log('API Key Saved!');
+  });
+
+  return newKey;
+}
 
 function lightsOn() {
   for(var i = 0; i < devices.length; i++) {
@@ -71,7 +91,7 @@ app.post('/api/off/', (req,res) => {
 
 app.post('/api/toggle', (req,res) => {
   console.log('POST /api/toggle/');
-  console.log('access_token: ' + req.body.access_token);
+  console.log('access_token: ' + apikey);
   toggleLights();
   res.writeHead(200, {'Content-Type': 'text/plain'});
   res.end('toggling lights\n');
@@ -81,11 +101,14 @@ app.post('/api/toggle', (req,res) => {
 /*
   Main function run when server is started
 */
-function init() {
-  env('.env'); // parse environment variables from .env file
+function init() {if(!process.env.APIKEY)
+  // parse environment variables from .env file
+  env('.env', {verbose: true, overwrite: true, raise: false, logger: console});
 
+  // generate API key if one does not exist
   port = process.env.PORT;
   lights = process.env.BULBS.split(' ');
+  apikey = process.env.APIKEY || setAPIKey();
 
   for (var i = 0; i < lights.length; i++) {
     devices.push(new controller.WifiLedBulb(lights[i]));

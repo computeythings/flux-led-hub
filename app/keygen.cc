@@ -10,6 +10,9 @@ namespace demo {
   using v8::String;
   using v8::Value;
 
+  /*
+    Generates an API key of a given length and returns as node.js module
+  */
   void genAPIKey(const FunctionCallbackInfo<Value>& args) {
     Isolate *isolate = args.GetIsolate();
 
@@ -25,15 +28,16 @@ namespace demo {
     }
     int keylen = args[0]->NumberValue();
 
-    char key[keylen];
-    char alpha[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    char key[keylen+1];
+    char alphaNum[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    srand(time(NULL)); // ensure random generation
 
     int i;
-    for (i = 0; i < keylen-1; i++)
-        key[i] = alpha[rand()%62];
-    key[keylen-1] = '\0'; // Null terminate
+    for (i = 0; i < keylen; i++)
+        key[i] = alphaNum[rand()%62];
+    key[keylen] = '\0'; // Null terminate
 
-    // Return the keypair as a JS object
+    // Return key as a JS object
     args.GetReturnValue().Set(String::NewFromUtf8(isolate, key));
   }
 
