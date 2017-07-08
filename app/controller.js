@@ -12,34 +12,34 @@ const REFRESH_STATE = [0x81, 0x8a, 0x8b, 0x96];
 const POWER_CHUNK = 2;
 
 exports.WifiLedBulb = function (ipaddr) {
+    var self = this;
     this.ipaddr = ipaddr;
     this.powerState = NULL_STATE;
-    this.socket = require('net').Socket().setTimeout(3000);
+    this.socket = require('net').Socket();
     this.socket.connect(5577, ipaddr)
+    .on('connect', () => refreshState(self.socket)) // to trigger data to get initial state
     .on('data', (chunk) => {
       var powerByte = chunk[POWER_CHUNK];
-      if(powerByte == ON_STATE && powerByte != this.powerState) {
-        this.powerState = ON_STATE;
+      if(powerByte == ON_STATE && powerByte != self.powerState) {
+        self.powerState = ON_STATE;
         console.log('[' + new Date().toLocaleString() + '] ' +
-          this.ipaddr + ' - ON');
+          self.ipaddr + ' - ON');
       }
-      else if(powerByte == OFF_STATE && powerByte != this.powerState) {
-        this.powerState = OFF_STATE;
+      else if(powerByte == OFF_STATE && powerByte != self.powerState) {
+        self.powerState = OFF_STATE;
         console.log('[' + new Date().toLocaleString() + '] ' +
-          this.ipaddr + ' - OFF');
+          self.ipaddr + ' - OFF');
       }
     })
-    .on('disconnect', function() {
-      console.log('[' + new Date().toLocaleString() + '] ' +
-        'disconnected from bulb ' + this.ipaddr);
-      this.powerState = NULL_STATE;
+    .on('close', (had_error) => {
+      self.powerState = NULL_STATE;
+      self.socket.connect(5577, self.ipaddr);
     })
-    .on('error', function() {
+    .on('error', () => {
       console.log('[' + new Date().toLocaleString() + '] ' +
-        'failed to connect to ' + this.ipaddr);
-      this.powerState = NULL_STATE;
+        'Failed to connect to ' + self.ipaddr);
+        self.powerState = NULL_STATE;
     });
-    refreshState(this.socket); // to trigger data to get initial state
 }
 
 exports.WifiLedBulb.prototype = {

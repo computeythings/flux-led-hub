@@ -1,0 +1,10 @@
+{
+    "listen": "0.0.0.0",
+    "port": 8000,
+    "lights": [
+        "bulb1",
+        "bulb2",
+        "bulb3"
+    ],
+    "apikey": ""
+}
