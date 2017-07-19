@@ -11,8 +11,10 @@ const POWER_OFF = [0x71, 0x24, 0x0f, 0xa4];
 const REFRESH_STATE = [0x81, 0x8a, 0x8b, 0x96];
 const POWER_CHUNK = 2;
 
-exports.WifiLedBulb = function (ipaddr) {
+exports.WifiLedBulb = function (ipaddr, updateCallback) {
     var self = this;
+    this.update = updateCallback;
+    this.name = '';
     this.ipaddr = ipaddr;
     this.powerState = NULL_STATE;
     this.socket = require('net').Socket();
@@ -24,15 +26,17 @@ exports.WifiLedBulb = function (ipaddr) {
         self.powerState = ON_STATE;
         console.log('[' + new Date().toLocaleString() + '] ' +
           self.ipaddr + ' - ON');
+          self.update({ bulb: self.ipaddr, powerState: self.powerState});
       }
       else if(powerByte == OFF_STATE && powerByte != self.powerState) {
         self.powerState = OFF_STATE;
         console.log('[' + new Date().toLocaleString() + '] ' +
           self.ipaddr + ' - OFF');
+          self.update({ bulb: self.ipaddr, powerState: self.powerState});
       }
     })
     .on('close', (had_error) => {
-      self.powerState = NULL_STATE;
+      console.log('Refreshing socket ' + self.ipaddr);
       self.socket.connect(5577, self.ipaddr);
     })
     .on('error', () => {
@@ -50,6 +54,9 @@ exports.WifiLedBulb.prototype = {
   turnOff: function() {
     var buffer = new Buffer(POWER_OFF);
     this.socket.write(buffer);
+  },
+  state: function() {
+    return { bulb: this.ipaddr, powerState: this.powerState}
   },
   isOn: function() {
     return this.powerState === ON_STATE;

@@ -1,10 +1,10 @@
-function lightPost(element,url) {
-  var clickedButton = element;
+function lightPost(target, url) {
   $.ajax({
     type: "POST",
     url: "/api/" + url,
     data: JSON.stringify({
-       'access_token': $("#access_token").text(),
+        'target': target,
+        'access_token': '',
      }),
     contentType: "application/json; charset=utf-8",
     dataType: "json",
@@ -21,18 +21,7 @@ function lightPost(element,url) {
 }
 
 $(document).ready(function() {
-  $("#on-btn").click(function(e) {
-    e.preventDefault();
-    lightPost($(this), 'on/');
-  });
-
-  $("#off-btn").click(function(e) {
-    e.preventDefault();
-    lightPost($(this), 'off/');
-  });
-
-  $("#toggle-btn").click(function(e) {
-    e.preventDefault();
-    lightPost($(this), 'toggle/');
+  $(".light-btn").click(function(e) {
+    lightPost('all', $(this).val());
   });
 });
