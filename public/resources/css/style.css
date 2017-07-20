@@ -1,14 +1,164 @@
-body {
-  font: 14px "Lucida Grande", Helvetica, Arial;
+html, body {
+  color: #eee;
+  padding: 0;
+  margin: auto;
+  height: 100%;
+  background-color: #333;
 }
 
+.header {
+  align: center;
+}
+
+/* lightbulb image styling */
 .lightbulb {
-    display: inline-block;
-    padding: 25px;
+  display: inline-block;
+  padding: 25px;
 }
 
 .bulb-image {
   width:50px;
   height:70px;
   cursor: pointer;
+}
+
+.dimmer {
+  width: 50px;
+}
+
+/* navbar styling */
+.sidenav {
+    height: 100%;
+    width: 60px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #fff;
+    overflow-x: hidden;
+    transition: 0.7s;
+    padding-top: 60px;
+}
+
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 10px;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+.menuitem {
+  float: left;
+  margin-left: 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+  cursor: pointer;
+  overflow:hidden;
+}
+
+.menuitem:hover, .offcanvas .menuitem:focus{
+    color: #f1f1f1;
+}
+
+#navbar {
+  width: 350px;
+  position: absolute;
+  left: -260px;
+  background-color: #333;
+}
+#navbar.menu-open {
+  background-color: #111;
+  left: 0;
+  border: 2px solid #222;
+  box-shadow:  -1px 1px #222,
+               -2px 2px #222,
+               -3px 3px #222,
+               -4px 4px #222,
+               -5px 5px #222;
+}
+
+#main {
+  transition: margin-left .7s;
+  margin-left: 90px;
+  padding: 16px;
+  height: 100%;
+}
+
+#main.menu-open {
+   margin-left: 350px;
+   background-size: cover;
+   opacity: .3;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
+
+/* Menu icon animations */
+.hamburger {
+  display: inline-block;
+  cursor: pointer;
+  transition-property: opacity, filter;
+  transition-duration: 0.15s;
+  transition-timing-function: linear;
+  font: inherit;
+  color: inherit;
+  text-transform: none;
+  background-color: transparent;
+  border: 0;
+  margin: 0;
+  overflow: visible;
+  outline :none;
+}
+.hamburger:hover {
+  opacity: 0.7;
+}
+
+.hamburger-box {
+  width: 40px;
+  height: 24px;
+  display: inline-block;
+  position: relative;
+}
+
+.hamburger-inner {
+  display: block;
+  top: 50%;
+  margin-top: -2px;
+}
+.hamburger-inner, .hamburger-inner::before, .hamburger-inner::after {
+  width: 40px;
+  height: 4px;
+  background-color: #ccc;
+  position: absolute;
+  transition-property: transform;
+  transition-duration: 0.4s;
+  transition-timing-function: ease;
+}
+.hamburger-inner::before, .hamburger-inner::after {
+  content: "";
+  display: block;
+}
+.hamburger-inner::before {
+  top: -10px;
+}
+.hamburger-inner::after {
+  bottom: -10px;
+}
+
+.hamburger--arrowturn.is-active .hamburger-inner {
+  transform: rotate(-180deg);
+}
+.hamburger--arrowturn.is-active .hamburger-inner::before {
+  transform: translate3d(12px, 2.9px, 0) rotate(45deg) scale(0.6, 1);
+}
+.hamburger--arrowturn.is-active .hamburger-inner::after {
+  transform: translate3d(12px, -2.8px, 0) rotate(-45deg) scale(0.6, 1);
 }

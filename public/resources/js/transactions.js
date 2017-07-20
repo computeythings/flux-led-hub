@@ -4,7 +4,7 @@ function lightPost(target, url) {
     url: "/api/" + url,
     data: JSON.stringify({
         'target': target,
-        'access_token': '',
+        'access_token': '2bu4zWELqk0AFogbYeDDae2xvl',
      }),
     contentType: "application/json; charset=utf-8",
     dataType: "json",

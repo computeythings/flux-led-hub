@@ -55,6 +55,12 @@ exports.WifiLedBulb.prototype = {
     var buffer = new Buffer(POWER_OFF);
     this.socket.write(buffer);
   },
+  setBrightness: function(level) {
+    if(level > 100 || level < 0)
+      return false;
+    var brightness = parseInt((percent * 255)/100);
+    var buffer =  new Buffer()[0x31, 0x00, 0x00, 0x00, brightness, 0x0f, 0x0f];
+  },
   state: function() {
     return { bulb: this.ipaddr, powerState: this.powerState}
   },

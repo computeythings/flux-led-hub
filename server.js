@@ -82,10 +82,12 @@ function addLight(ipaddr) {
 
 function lightsOn(targets) {
   if(targets === 'all') {
-    for(key in devices) {
+    var i = 0;
+    for(var key in devices) {
       devices[key].turnOn();
+      i++;
     }
-    return 'turning on ' + devices.length + 'lights\n';
+    return 'turning on ' + i + ' lights\n';
   }
 
   for(var ip in targets) {
@@ -97,10 +99,12 @@ function lightsOn(targets) {
 
 function lightsOff(targets) {
   if(targets === 'all') {
-    for(key in devices) {
-      devices[key].turnOn();
+    var i = 0;
+    for(var key in devices) {
+      devices[key].turnOff();
+      i++;
     }
-    return 'turning off ' + devices.length + 'lights\n';
+    return 'turning off ' + i + ' lights\n';
   }
 
 
@@ -202,39 +206,6 @@ function runTest(test) {
 }
 
 /*
-  Main function run when testing is started
-*/
-function startTesting(tests) {
-  const testHelp = 'Usage: node server.js test <options>\n' +
-                      '\ton: turn all lights on\n' +
-                      '\toff: turn all lights off\n' +
-                      '\ttoggle: toggle all lights\n' +
-                      '\tapikey: generate new API Key in config.json file. ' +
-                      'CAUTION: this will overwrite your existing key.\n';
-  if(tests.length == 0 || tests == 'help') {
-    console.log(testHelp);
-    return;
-  }
-
-  lights = config.lights;
-  for (var key in lights) {
-    devices[lights[key]] = new controller.WifiLedBulb(lights[key],
-      clientUpdate);
-  }
-
-  console.log('Attempting to run tests');
-  var i;
-  for(i = 0; i < tests.length; i++) {
-    setTimeout(runTest, 3000*(i+1), tests[i]);
-  }
-  setTimeout(function(){
-    for(var key in devices)
-      devices[key].socket.destroy();
-  }, 3000*(++i));
-  setTimeout(process.exit, 3000*(++i));
-}
-
-/*
   Main function run when server is started
 */
 function startServer() {
@@ -255,14 +226,4 @@ function startServer() {
   });
 }
 
-  console.log('updating clients');
-var runType = process.argv.slice(2,3);
-if(runType == 'server') {
-    startServer();
-}
-else if(runType == 'test') {
-  startTesting(process.argv.slice(3));
-}
-else if(runType == 'run') {
-  setAPIKey();
-}
+startServer();
