@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const server = require('http').createServer(app);
 
-const config = require('./config.json');
+const config = require('./config/config.json');
 
 app.use(bodyParser.urlencoded({
     extended: true
