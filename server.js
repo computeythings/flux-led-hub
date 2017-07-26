@@ -1,5 +1,4 @@
 'use strict'
-const controller = require('./app/controller');
 const keygen = require('./build/Release/keygen');
 const express = require('express');
 const fs = require('fs');
@@ -7,6 +6,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const server = require('http').createServer(app);
 
+const controller = require('./app/controller');
 const config = require('./config/config.json');
 
 app.use(bodyParser.urlencoded({
@@ -121,7 +121,7 @@ function lightsOff(targets) {
 */
 function toggleLights(targets) {
   if(targets === 'all') {
-    return toggleLights(Object.keys(devices))
+    return toggleLights(Object.keys(devices));
   }
   var allOn = true;
   for(var ip in targets) {
@@ -131,6 +131,26 @@ function toggleLights(targets) {
   }
   // Always find an excuse to use the ternary operator
   return allOn ? lightsOff(targets):lightsOn(targets);
+}
+
+function setBrightness(targets, level) {
+  console.log(targets);
+  if(targets === 'all') {
+    var i = 0;
+    for(var key in devices) {
+      devices[key].setBrightness(level);
+      i++;
+    }
+    return 'setting brightness of ' + i + ' lights to '+ level +'\n';
+  }
+
+  for(var ip in targets) {
+    if(targets[ip] in devices){
+      console.log('setting brightness of ' + targets[ip]);
+      devices[targets[ip]].setBrightness(level);
+    }
+  }
+  return 'setting brightness of ' + targets.length + ' lights to '+ level +'\n';
 }
 
 //
@@ -175,35 +195,36 @@ app.post('/api/toggle', (req,res) => {
   }
 });
 
+app.post('/api/brightness', (req,res) => {
+  console.log('POST /api/brightness/');
+  if(req.body.access_token === apikey) {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end(setBrightness(req.body.target, req.body.brightness));
+  } else {
+    res.writeHead(400, {'Content-Type': 'text/plain'});
+    res.end('Invalid API Key\n');
+  }
+})
+
+app.post('/api/scan', (req,res) => {
+  console.log('POST /api/scan/');
+  if(req.body.access_token === apikey) {
+    var scanner = require('./app/scanner');
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    scanner.discover().on('scanComplete', (data) => {
+      console.log(JSON.stringify(data));
+      res.end(JSON.stringify(data));
+    });
+  } else {
+    res.writeHead(400, {'Content-Type': 'text/plain'});
+    res.end('Invalid API Key\n');
+  }
+});
+
 app.get('*', (req, res) => {
   res.writeHead(404, {'Content-Type': 'text/plain'});
   res.end('Invalid Link!');
 });
-
-/*
-  Test function for parsing test arguments
-*/
-function runTest(test) {
-  switch(test) {
-    case 'on':
-      console.log('Turning on lights.');
-      lightsOn();
-      break;
-    case 'off':
-      console.log('Turning off lights.');
-      lightsOff();
-      break;
-    case 'toggle':
-      console.log('Toggling lights.');
-      toggleLights();
-      break;
-    case 'apikey':
-      console.log('Generated new API key: ' + setAPIKey());
-      break;
-    default:
-      console.log('No test found matching: ' + test);
-  }
-}
 
 /*
   Main function run when server is started

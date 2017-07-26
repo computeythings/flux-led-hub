@@ -1,5 +1,6 @@
-const dgram = require('dgram');
-const server = dgram.createSocket('udp4');
+var dgram = require('dgram');
+var events = require('events');
+var server;
 
 const DISCOVERY_PORT = 48899;
 const BROADCAST_ADDR = '255.255.255.255';
@@ -7,7 +8,9 @@ const DISCOVER_MSG = 'HF-A11ASSISTHREAD';
 
 var timeout; //stores Timeout object
 
-function discover() {
+module.exports.discover = function() {
+  server = dgram.createSocket('udp4');
+  var emitter = new events.EventEmitter();
   var devices = [];
   var self;
   server.bind(DISCOVERY_PORT, () => {
@@ -24,11 +27,12 @@ function discover() {
     if(!devices.includes(deviceAddr)){
       if(msg != DISCOVER_MSG) { // This should filter out localhost
           devices.push(rinfo.address);
+          console.log(`Added ${rinfo.address} to devices`);
+
+          clearTimeout(timeout); // timeout is reset upon finding each new device
+          broadcast(); // re-broadcasting makes results more reliable
+          console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
       }
-      
-      clearTimeout(timeout); // timeout is reset upon finding each new device
-      broadcast(); // re-broadcasting makes results more reliable
-      console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
     }
   });
 
@@ -39,9 +43,11 @@ function discover() {
 
   server.on('close', () => {
     console.log('finished listening\n' + devices);
+    emitter.emit('scanComplete', devices);
   })
 
   broadcast();
+  return emitter;
 }
 
 function broadcast() {
@@ -50,7 +56,3 @@ function broadcast() {
       timeout = setTimeout(() => server.close(), 5000);
     });
 }
-
-
-
-discover();
