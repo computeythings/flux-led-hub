@@ -19,7 +19,8 @@
          <span class="hamburger-inner"></span>
        </span>
      </button>
-    <a class="menuitem" onclick="lightPost('all', 'toggle')">Scan</a>
+    <a class="menuitem" onclick="scan()">Scan</a>
+    <a id="test-a"></a>
   </div>
   <div id="main">
     <div id="header">
@@ -31,17 +32,17 @@
     <div id="lights">
       <div id="bulb1" class="lightbulb">
          <img id="bulb1-image" class="bulb-image" src="/resources/img/dc.png" onclick="lightPost(['bulb1'], 'toggle')" />
-         <br/><input type="range" class="dimmer" value="90" data-show-value="true">
+         <br/><input type="range" class="dimmer" value="100" data-show-value="true">
          <h4>bulb1</h4>
       </div>
       <div id="bulb2" class="lightbulb">
          <img id="bulb2-image" class="bulb-image" src="/resources/img/dc.png" onclick="lightPost(['bulb2'], 'toggle')" />
-         <br/><input type="range" class="dimmer" value="90">
+         <br/><input type="range" class="dimmer" value="100">
          <h4>bulb2</h4>
       </div>
       <div id="bulb3" class="lightbulb">
          <img id="bulb3-image" class="bulb-image" src="/resources/img/dc.png" onclick="lightPost(['bulb3'], 'toggle')" />
-         <br/><input type="range" class="dimmer" value="90">
+         <br/><input type="range" class="dimmer" value="100">
          <h4>bulb3</h4>
       </div>
     </div>
