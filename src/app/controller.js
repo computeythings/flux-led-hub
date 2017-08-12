@@ -9,6 +9,10 @@ const POWER_ON = [0x71, 0x23, 0x0f, 0xa3];
 const POWER_OFF = [0x71, 0x24, 0x0f, 0xa4];
 const REFRESH_STATE = [0x81, 0x8a, 0x8b, 0x96];
 const POWER_CHUNK = 2;
+const RED_CHUNK = 6;
+const GREEN_CHUNK = 7;
+const BLUE_CHUNK = 8;
+const BRIGHTNESS_CHUNK = 9;
 const KEEPALIVE_INTERVAL = 5000; // time in ms
 
 module.exports.WifiLedBulb = function (ipaddr, updateCallback) {
@@ -17,6 +21,8 @@ module.exports.WifiLedBulb = function (ipaddr, updateCallback) {
     this.name = '';
     this.ipaddr = ipaddr;
     this.powerState = NULL_STATE;
+    this.brightness = 0;
+    this.RGB = [0,0,0];
     this.socket = require('net').Socket();
 
     this.socket.connect(5577, ipaddr)
@@ -35,9 +41,22 @@ module.exports.WifiLedBulb = function (ipaddr, updateCallback) {
           self.ipaddr + ' - OFF');
           self.update({ bulb: self.ipaddr, powerState: self.powerState});
       }
+
+      var r = chunk[RED_CHUNK];
+      var g = chunk[GREEN_CHUNK];
+      var b = chunk[BLUE_CHUNK];
+      self.RGB = [r,g,b];
+
+      var brightnessByte = chunk[BRIGHTNESS_CHUNK];
+      if(brightnessByte){
+        self.brightness = parseInt((brightnessByte * 255)/100);
+      } else {
+        self.brightness =  Math.max.apply(Math, self.RGB);
+      }
     })
     .on('close', (had_error) => {
-      console.log('Refreshing socket ' + self.ipaddr);
+      console.log('[' + new Date().toLocaleString() + '] ' +
+        'Refreshing socket ' + self.ipaddr);
       self.powerState = NULL_STATE;
       self.update({ bulb: self.ipaddr, powerState: self.powerState});
       self.socket.connect(5577, self.ipaddr);
@@ -49,11 +68,15 @@ module.exports.WifiLedBulb = function (ipaddr, updateCallback) {
 
     // This checks if bulbs are active ever
     setInterval(() => {
-      ping.sys.probe(this.ipaddr, (isAlive) => {
-        if(!isAlive) {
-          self.socket.destroy();
-        }
-      });
+      if(this.powerState != NULL_STATE)  {
+        ping.sys.probe(this.ipaddr, (isAlive) => {
+          if(!isAlive) {
+            console.log('[' + new Date().toLocaleString() + '] ' +
+              self.ipaddr + ' - DISCONNECTED');
+            self.socket.destroy();
+          }
+        });
+      }
     }, KEEPALIVE_INTERVAL);
 }
 
@@ -73,10 +96,16 @@ exports.WifiLedBulb.prototype = {
     var postfix = (0x4f + brightness) & 0xff;
     var buffer =  new Buffer([0x31, 0x00, 0x00, 0x00, brightness, 0x0f, 0x0f,
       postfix]);
+    this.brightness = level;
     this.socket.write(buffer);
   },
   state: function() {
-    return { bulb: this.ipaddr, powerState: this.powerState}
+    return {
+      bulb: this.ipaddr,
+      name: this.name,
+      powerState: this.powerState,
+      brightness: this.brightness
+    }
   },
   isOn: function() {
     return this.powerState === ON_STATE;

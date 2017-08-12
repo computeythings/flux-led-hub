@@ -31,6 +31,7 @@ function scan() {
     dataType: 'json',
     success: function(result) {
       console.log(result);
+      $('#test-a').text(result);
       //TODO: set states here
     },
     failure: function(result) {
