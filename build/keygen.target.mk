@@ -35,10 +35,10 @@ CFLAGS_CC_Debug := \
 	-std=gnu++0x
 
 INCS_Debug := \
-	-I/home/bryan/.node-gyp/8.1.3/include/node \
-	-I/home/bryan/.node-gyp/8.1.3/src \
-	-I/home/bryan/.node-gyp/8.1.3/deps/uv/include \
-	-I/home/bryan/.node-gyp/8.1.3/deps/v8/include
+	-I/home/bryan/.node-gyp/8.2.1/include/node \
+	-I/home/bryan/.node-gyp/8.2.1/src \
+	-I/home/bryan/.node-gyp/8.2.1/deps/uv/include \
+	-I/home/bryan/.node-gyp/8.2.1/deps/v8/include
 
 DEFS_Release := \
 	'-DNODE_GYP_MODULE_NAME=keygen' \
@@ -70,13 +70,13 @@ CFLAGS_CC_Release := \
 	-std=gnu++0x
 
 INCS_Release := \
-	-I/home/bryan/.node-gyp/8.1.3/include/node \
-	-I/home/bryan/.node-gyp/8.1.3/src \
-	-I/home/bryan/.node-gyp/8.1.3/deps/uv/include \
-	-I/home/bryan/.node-gyp/8.1.3/deps/v8/include
+	-I/home/bryan/.node-gyp/8.2.1/include/node \
+	-I/home/bryan/.node-gyp/8.2.1/src \
+	-I/home/bryan/.node-gyp/8.2.1/deps/uv/include \
+	-I/home/bryan/.node-gyp/8.2.1/deps/v8/include
 
 OBJS := \
-	$(obj).target/$(TARGET)/app/keygen.o
+	$(obj).target/$(TARGET)/src/app/keygen.o
 
 # Add to the list of files we specially track dependencies for.
 all_deps += $(OBJS)

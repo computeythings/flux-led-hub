@@ -1,10 +1,17 @@
-'use strict'
-const keygen = require('./build/Release/keygen');
+require('babel-register')({
+    presets: ['react']
+});
+
+const keygen = require('../build/Release/keygen');
 const express = require('express');
 const fs = require('fs');
+const path = require('path');
 const bodyParser = require('body-parser');
 const app = express();
 const server = require('http').createServer(app);
+const React = require('react');
+const ReactDOMServer = require('react-dom/server');
+const Component = require('./components/test.jsx');
 
 const controller = require('./app/controller');
 const config = require('./config/config.json');
@@ -13,7 +20,7 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(bodyParser.json());
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(path.resolve(__dirname, 'public')));
 app.disable('x-powered-by'); // security restritcion
 
 // Globals
@@ -22,7 +29,7 @@ var port;
 var lights;
 var apikey;
 
-// Socket.io stuff for async transactions between server and client
+// Socket.io stuff for async transactions between server and clientrc/app/
 const io = require('socket.io')(server);
 io.on('connection', (socket) => {
   console.log('new connection')
@@ -158,8 +165,15 @@ function setBrightness(targets, level) {
 //
 app.get('/', (req,res) => {
   console.log('GET /');
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  res.end('public/index');
+  var props = {
+    myTestProp: 'OOEEE',
+    apikey: apikey
+  };
+  var html = ReactDOMServer.renderToString(
+    React.createElement(Component, props)
+  );
+  //res.writeHead(200, {'Content-Type': 'text/html'});
+  res.send(html);
 });
 
 app.post('/api/on/', (req,res) => {
@@ -189,7 +203,7 @@ app.post('/api/toggle', (req,res) => {
   if(req.body.access_token === apikey) {
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end(toggleLights(req.body.target));
-  } else {
+  } else {""
     res.writeHead(400, {'Content-Type': 'text/plain'});
     res.end('Invalid API Key\n');
   }
