@@ -7,5 +7,5 @@ module.exports.post = async function(url, data) {
     },
     body: JSON.stringify(data)
   });
-  return await response.json();
+  return response;
 }

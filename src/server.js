@@ -203,7 +203,7 @@ app.post('/api/toggle', (req,res) => {
   if(req.body.access_token === apikey) {
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end(toggleLights(req.body.target));
-  } else {""
+  } else {
     res.writeHead(400, {'Content-Type': 'text/plain'});
     res.end('Invalid API Key\n');
   }

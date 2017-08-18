@@ -22406,9 +22406,16 @@ module.exports = createReactClass({
   _handleClick: function (message) {
     alert(message);
   },
+  _toggleLights: async function (url, target) {
+    let result = await transactions.post(url, {
+      'access_token': this.props.apikey,
+      'target': target
+    });
+    console.log((await result.text()));
+  },
   _scan: async function () {
     let discovered = await transactions.post('scan', { 'access_token': this.props.apikey });
-    this.setScanResults(discovered);
+    this.setScanResults((await discovered.json()));
   },
   setScanResults: function (lightArray) {
     this.setState({ scanResults: lightArray });
@@ -22474,17 +22481,17 @@ module.exports = createReactClass({
             ),
             React.createElement(
               'button',
-              { id: 'on-btn', className: 'light-btn', value: 'on' },
+              { id: 'on-btn', className: 'light-btn', onClick: () => this._toggleLights('on', 'all') },
               'All on'
             ),
             React.createElement(
               'button',
-              { id: 'off-btn', className: 'light-btn', value: 'off' },
+              { id: 'off-btn', className: 'light-btn', onClick: () => this._toggleLights('off', 'all') },
               'All off'
             ),
             React.createElement(
               'button',
-              { id: 'toggle-btn', className: 'light-btn', value: 'toggle' },
+              { id: 'toggle-btn', className: 'light-btn', onClick: () => this._toggleLights('toggle', 'all') },
               'Toggle All'
             )
           ),
@@ -22562,7 +22569,7 @@ module.exports.post = async function(url, data) {
     },
     body: JSON.stringify(data)
   });
-  return await response.json();
+  return response;
 }
 
 

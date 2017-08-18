@@ -14,10 +14,17 @@ module.exports = createReactClass({
   _handleClick: function(message) {
     alert(message);
   },
+  _toggleLights: async function(url, target) {
+    let result = await transactions.post(url, {
+      'access_token': this.props.apikey,
+      'target': target
+    });
+    console.log(await result.text());
+  },
   _scan: async function() {
     let discovered = await transactions.post(
       'scan', {'access_token': this.props.apikey});
-    this.setScanResults(discovered);
+    this.setScanResults(await discovered.json());
   },
   setScanResults: function(lightArray) {
     this.setState({scanResults: lightArray});
@@ -51,13 +58,17 @@ module.exports = createReactClass({
         <div id="main" className={this.state.showNav ? 'menu-open' :''}>
           <div id="header">
             <h2>Flux Hub</h2>
-            <button id="on-btn" className="light-btn" value="on">All on</button>
-            <button id="off-btn" className="light-btn" value="off" >All off</button>
-            <button id="toggle-btn" className="light-btn" value="toggle">Toggle All</button>
+            <button id="on-btn" className="light-btn" onClick={() =>
+                 this._toggleLights('on','all')} >All on</button>
+            <button id="off-btn" className="light-btn" onClick={() =>
+                this._toggleLights('off','all')} >All off</button>
+            <button id="toggle-btn" className="light-btn" onClick={() =>
+                this._toggleLights('toggle','all')} >Toggle All</button>
           </div>
           <div id="lights">
             <h1>{this.props.myTestProp}</h1>
-            <button onClick={() => this._handleClick('LOOK AT MEEE!')}>I'm Mr. Meeseeks</button>
+            <button onClick={() => this._handleClick('LOOK AT MEEE!')}>
+              I'm Mr. Meeseeks</button>
 
             <script dangerouslySetInnerHTML={{
               __html: 'window.PROPS=' + JSON.stringify(this.props)
