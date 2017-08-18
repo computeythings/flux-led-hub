@@ -160,6 +160,16 @@ function setBrightness(targets, level) {
   return 'setting brightness of ' + targets.length + ' lights to '+ level +'\n';
 }
 
+function getDevices() {
+  var devList = [];
+  var i = 0;
+  for(var key in devices) {
+    devList[i] = devices[key].state();
+    i++;
+  }
+  return devList;
+}
+
 //
 // ROUTING
 //
@@ -167,7 +177,8 @@ app.get('/', (req,res) => {
   console.log('GET /');
   var props = {
     myTestProp: 'OOEEE',
-    apikey: apikey
+    apikey: apikey,
+    bulbs: getDevices()
   };
   var html = ReactDOMServer.renderToString(
     React.createElement(Component, props)

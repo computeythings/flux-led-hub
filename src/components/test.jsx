@@ -1,18 +1,21 @@
 const React = require('react');
 const createReactClass = require('create-react-class');
 const transactions = require('./rest.js');
+const Light = require('./Light.jsx');
 
 module.exports = createReactClass({
   getInitialState: function() {
     return {
-      showNav: false
+      showNav: false,
+      Lights: this.props.bulbs.map((bulb) =>
+        <Light name={bulb.name} ipaddr={bulb.ipaddr} key={bulb.ipaddr}
+          powerState={bulb.powerState} brightness={bulb.brightness}
+          toggleLight={() => this._toggleLights('toggle', [bulb.ipaddr])} />
+      )
     };
   },
   _toggleNav: function() {
     this.setState({showNav: !this.state.showNav});
-  },
-  _handleClick: function(message) {
-    alert(message);
   },
   _toggleLights: async function(url, target) {
     let result = await transactions.post(url, {
@@ -36,7 +39,7 @@ module.exports = createReactClass({
       <head>
            <meta charSet="UTF-8" />
            <title>Flux Hub</title>
-           <link rel="stylesheet" href="./resources/css/style.css" />
+           <link rel="stylesheet" href="resources/css/style.css" />
            <meta name="description" content="DESCRIPTION" />
            <script type="text/javascript" src="resources/js/jquery-3.2.1.min.js" />
            <script type="text/javascript" src="/socket.io/socket.io.js" />
@@ -66,9 +69,7 @@ module.exports = createReactClass({
                 this._toggleLights('toggle','all')} >Toggle All</button>
           </div>
           <div id="lights">
-            <h1>{this.props.myTestProp}</h1>
-            <button onClick={() => this._handleClick('LOOK AT MEEE!')}>
-              I'm Mr. Meeseeks</button>
+            {this.state.Lights}
 
             <script dangerouslySetInnerHTML={{
               __html: 'window.PROPS=' + JSON.stringify(this.props)

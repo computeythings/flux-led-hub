@@ -49,9 +49,10 @@ module.exports.WifiLedBulb = function (ipaddr, updateCallback) {
 
       var brightnessByte = chunk[BRIGHTNESS_CHUNK];
       if(brightnessByte){
-        self.brightness = parseInt((brightnessByte * 255)/100);
+        self.brightness = parseInt((brightnessByte / 255)*100);
       } else {
-        self.brightness =  Math.max.apply(Math, self.RGB);
+        var rgbMax = Math.max.apply(Math, self.RGB);
+        self.brightness = parseInt((rgbMax / 255)*100);
       }
     })
     .on('close', (had_error) => {
@@ -101,7 +102,7 @@ exports.WifiLedBulb.prototype = {
   },
   state: function() {
     return {
-      bulb: this.ipaddr,
+      ipaddr: this.ipaddr,
       name: this.name,
       powerState: this.powerState,
       brightness: this.brightness

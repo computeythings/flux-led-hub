@@ -22391,20 +22391,21 @@ module.exports = ReactDOMInvalidARIAHook;
 const React = __webpack_require__(32);
 const createReactClass = __webpack_require__(185);
 const transactions = __webpack_require__(186);
+const Light = __webpack_require__(187);
 
 module.exports = createReactClass({
   displayName: 'exports',
 
   getInitialState: function () {
     return {
-      showNav: false
+      showNav: false,
+      Lights: this.props.bulbs.map(bulb => React.createElement(Light, { name: bulb.name, ipaddr: bulb.ipaddr, key: bulb.ipaddr,
+        powerState: bulb.powerState, brightness: bulb.brightness,
+        toggleLight: () => this._toggleLights('toggle', [bulb.ipaddr]) }))
     };
   },
   _toggleNav: function () {
     this.setState({ showNav: !this.state.showNav });
-  },
-  _handleClick: function (message) {
-    alert(message);
   },
   _toggleLights: async function (url, target) {
     let result = await transactions.post(url, {
@@ -22434,7 +22435,7 @@ module.exports = createReactClass({
           null,
           'Flux Hub'
         ),
-        React.createElement('link', { rel: 'stylesheet', href: './resources/css/style.css' }),
+        React.createElement('link', { rel: 'stylesheet', href: 'resources/css/style.css' }),
         React.createElement('meta', { name: 'description', content: 'DESCRIPTION' }),
         React.createElement('script', { type: 'text/javascript', src: 'resources/js/jquery-3.2.1.min.js' }),
         React.createElement('script', { type: 'text/javascript', src: '/socket.io/socket.io.js' })
@@ -22498,16 +22499,7 @@ module.exports = createReactClass({
           React.createElement(
             'div',
             { id: 'lights' },
-            React.createElement(
-              'h1',
-              null,
-              this.props.myTestProp
-            ),
-            React.createElement(
-              'button',
-              { onClick: () => this._handleClick('LOOK AT MEEE!') },
-              'I\'m Mr. Meeseeks'
-            ),
+            this.state.Lights,
             React.createElement('script', { dangerouslySetInnerHTML: {
                 __html: 'window.PROPS=' + JSON.stringify(this.props)
               } }),
@@ -22572,6 +22564,48 @@ module.exports.post = async function(url, data) {
   return response;
 }
 
+
+/***/ }),
+/* 187 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const React = __webpack_require__(32);
+const createReactClass = __webpack_require__(185);
+
+const icons = {
+  35: 'resources/img/on.png',
+  36: 'resources/img/off.png',
+  0: 'resources/img/dc.png'
+};
+
+module.exports = createReactClass({
+  displayName: 'exports',
+
+  getInitialState: function () {
+    return {
+      name: this.props.name,
+      icon: icons[this.props.powerState],
+      ipaddr: this.props.ipaddr,
+      brightness: this.props.brightness
+    };
+  },
+  _toggle: function () {},
+  _handleChange: function () {},
+  render: function () {
+    return React.createElement(
+      'span',
+      { className: 'lightbulb' },
+      React.createElement('img', { className: 'bulb-image', src: this.state.icon, onClick: this.props.toggleLight }),
+      React.createElement('br', null),
+      React.createElement('input', { type: 'range', className: 'dimmer', value: this.state.brightness, onChange: this._handleChange }),
+      React.createElement(
+        'h4',
+        null,
+        this.state.name || this.state.ipaddr
+      )
+    );
+  }
+});
 
 /***/ })
 /******/ ]);
