@@ -11,10 +11,11 @@ const app = express();
 const server = require('http').createServer(app);
 const React = require('react');
 const ReactDOMServer = require('react-dom/server');
-const Component = require('./components/test.jsx');
-
+const Component = require('./components/Layout.jsx');
 const controller = require('./app/controller');
-const config = require('./config/config.json');
+
+const CONFIG = path.resolve(__dirname, 'config/config.json');
+const config = require(CONFIG);
 
 app.use(bodyParser.urlencoded({
     extended: true
@@ -52,12 +53,12 @@ function setAPIKey() {
   var newKey = keygen.apikey(26); // 26 character API key
   console.log('generated API key: ' + newKey);
 
-  var jsonConfig = JSON.parse(fs.readFileSync('./config.json'));
+  var jsonConfig = JSON.parse(fs.readFileSync(CONFIG));
   jsonConfig.apikey = newKey;
 
   var newFile = JSON.stringify(jsonConfig, null, 4);
 
-  fs.writeFileSync('./config.json', newFile, "utf8", function(err) {
+  fs.writeFileSync(CONFIG, newFile, "utf8", function(err) {
     if(err){
       console.log('Failed to write');
     } else {
@@ -69,14 +70,14 @@ function setAPIKey() {
 }
 
 function addLight(ipaddr) {
-  var jsonConfig = JSON.parse(fs.readFileSync('./config.json'));
+  var jsonConfig = JSON.parse(fs.readFileSync(CONFIG));
   jsonConfig.lights.push(ipaddr);
   devices[ipaddr] = new controller.WifiLedBulb(ipaddr,
     clientUpdate);
 
   var newFile = JSON.stringify(jsonConfig, null, 4);
 
-  fs.writeFileSync('./config.json', newFile, "utf8", function(err) {
+  fs.writeFileSync(CONFIG, newFile, "utf8", function(err) {
     if(err){
       console.log('Failed to write');
       return false;
@@ -141,7 +142,6 @@ function toggleLights(targets) {
 }
 
 function setBrightness(targets, level) {
-  console.log(targets);
   if(targets === 'all') {
     var i = 0;
     for(var key in devices) {

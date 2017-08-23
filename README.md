@@ -21,12 +21,6 @@ currently has only 4 options.
 - lights: a list of IP addresses corresponding to all of the Flux LEDs you wish to control.
 - apikey: API key used to make requests. This will be set automatically on the first run or can be set/reset manually.
 
-
-#### Required for web GUI funcion
-Currently the API key is only written to the config.json file and so in order to get the web page functioning it must be copied from the config file into the hidden span field in index.html with id="access_token".
-
-**This is a temporary workaround and will be fixed when a login is implemented.**
-
 Once you have finished with your configuration, you can start the server with `npm start` and find the controls at http://localhost:8000 by default.
 
 ## API

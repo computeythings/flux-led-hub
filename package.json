@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "webpack-watch": "webpack -w",
-    "express-server": "nodemon src/server.js",
+    "express-server": "nodemon src/server.js --ext js,jsx",
     "dev": "concurrent --kill-others \"npm run webpack-watch\" \"npm run express-server\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -36,7 +36,12 @@
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "redis": "^2.7.1",
-    "socket.io": "^2.0.3"
+    "socket.io": "^2.0.3",
+    "socket.io-client": "^2.0.3"
+  },
+  "peerDependencies": {
+    "react": ">=15.0.*",
+    "react-dom": ">=15.0.*"
   },
   "devDependencies": {
     "babel-loader": "^7.1.1",
