@@ -30,12 +30,10 @@
     "dgram": "^1.0.1",
     "express": "^4.15.4",
     "fs": "0.0.1-security",
-    "node-gyp": "^3.6.2",
     "nwbuild": "0.0.5",
     "ping": "^0.2.2",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
-    "redis": "^2.7.1",
     "socket.io": "^2.0.3",
     "socket.io-client": "^2.0.3"
   },

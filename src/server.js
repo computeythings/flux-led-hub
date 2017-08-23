@@ -2,7 +2,7 @@ require('babel-register')({
     presets: ['react']
 });
 
-const keygen = require('../build/Release/keygen');
+const keygen = require('./app/keygen.js');
 const express = require('express');
 const fs = require('fs');
 const path = require('path');

@@ -1,1 +1,0 @@
-cmd_Release/obj.target/keygen.node := g++ -shared -pthread -rdynamic -m64  -Wl,-soname=keygen.node -o Release/obj.target/keygen.node -Wl,--start-group Release/obj.target/keygen/src/app/keygen.o -Wl,--end-group 
