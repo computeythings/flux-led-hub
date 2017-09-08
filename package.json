@@ -7,7 +7,8 @@
     "webpack-watch": "webpack -w",
     "express-server": "nodemon src/server.js --ext js,jsx",
     "dev": "concurrent --kill-others \"npm run webpack-watch\" \"npm run express-server\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js"
   },
   "keywords": [
     "Flux",
@@ -22,18 +23,19 @@
   "author": "Bryan Gonnella",
   "license": "ISC",
   "dependencies": {
-    "babel-core": "^6.25.0",
-    "babel-loader": "^7.1.1",
+    "babel-core": "^6.26.0",
     "babel-preset-react": "^6.24.1",
-    "babel-register": "^6.24.1",
+    "babel-register": "^6.26.0",
     "body-parser": "^1.17.2",
     "dgram": "^1.0.1",
+    "dns": "^0.2.2",
     "express": "^4.15.4",
     "fs": "0.0.1-security",
     "nwbuild": "0.0.5",
     "ping": "^0.2.2",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
+    "react-router": "^3.0.5",
     "socket.io": "^2.0.3",
     "socket.io-client": "^2.0.3"
   },
@@ -42,9 +44,9 @@
     "react-dom": ">=15.0.*"
   },
   "devDependencies": {
-    "babel-loader": "^7.1.1",
+    "babel-loader": "^7.1.2",
+    "concurrently": "^1.0.0",
     "http-server": "^0.10.0",
-    "webpack": "^3.4.1",
-    "concurrently": "^1.0.0"
+    "webpack": "^3.5.5"
   }
 }

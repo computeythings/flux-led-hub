@@ -11,9 +11,9 @@ const icons = {
 module.exports = createReactClass({
   getInitialState: function() {
     this.props.eventListener.on('update', (data) => {
-      if(data.bulb === this.props.ipaddr) {
+      if(data.bulb === this.props.ipaddr && this.refs.root) {
         if(data.powerState) {
-          this.setState({icon: icons[data.powerState]});
+          this.setState({powerState: data.powerState});
         }
         if(data.name) {
           this.setState({name: data.name});
@@ -26,7 +26,7 @@ module.exports = createReactClass({
     });
     return {
       name: this.props.name,
-      icon: icons[this.props.powerState],
+      powerState: this.props.powerState,
       brightness: this.props.brightness
     };
   },
@@ -45,8 +45,8 @@ module.exports = createReactClass({
   render: function(){
     //TODO: ADD BRIGHTNESS SLIDER
     return (
-      <span className="lightbulb">
-        <img className="bulb-image" src={this.state.icon} onClick={this.props.toggleLight}/>
+      <span className="lightbulb" ref="root">
+        <img className="bulb-image" src={icons[this.state.powerState]} onClick={this.props.toggleLight}/>
         <br /> <input type="range" className="dimmer" ref="dimmer"
           defaultValue={this.state.brightness}
           onMouseUp={this._handleChange} />

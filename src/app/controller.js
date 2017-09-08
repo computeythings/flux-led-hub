@@ -75,6 +75,8 @@ module.exports.WifiLedBulb = function (ipaddr, updateCallback) {
             console.log('[' + new Date().toLocaleString() + '] ' +
               self.ipaddr + ' - DISCONNECTED');
             self.socket.destroy();
+          } else {
+            refreshState(self.socket);
           }
         });
       }

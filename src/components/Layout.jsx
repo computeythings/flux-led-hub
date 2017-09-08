@@ -3,7 +3,7 @@ const createReactClass = require('create-react-class');
 const transactions = require('./rest.js');
 const Light = require('./Light.jsx');
 const io = require('socket.io-client');
-const socket = io('localhost:8000');
+const socket = io('http://localhost:8000');
 
 module.exports = createReactClass({
   getInitialState: function() {
@@ -16,6 +16,10 @@ module.exports = createReactClass({
           apikey={this.props.apikey} eventListener={socket} />
       )
     };
+  },
+  _closeNav: function() {
+    if(this.state.showNav)
+      this._toggleNav();
   },
   _toggleNav: function() {
     this.setState({showNav: !this.state.showNav});
@@ -33,7 +37,7 @@ module.exports = createReactClass({
     this.setScanResults(await discovered.json());
   },
   setScanResults: function(lightArray) {
-    this.setState({scanResults: lightArray});
+    this.setState({scanResults: nodupes});
     //TODO: Handle this in html to create a nice scanned list.
   },
   render: function() {
@@ -43,7 +47,6 @@ module.exports = createReactClass({
            <meta charSet="UTF-8" />
            <title>Flux Hub</title>
            <link rel="stylesheet" href="resources/css/style.css" />
-           <meta name="description" content="DESCRIPTION" />
        </head>
 
        <body>
@@ -56,10 +59,12 @@ module.exports = createReactClass({
                <span className="hamburger-inner"></span>
              </span>
            </button>
-          <a className="menuitem" onClick={this._scan}>Scan</a>
-          <a id="test-a">{this.state.scanResults}</a>
+          <a className="menuitem" onClick={this._scan}>Scan</a><br/>
+          <div className="menu-content" hidden={!this.state.showNav}>
+            {this.state.scanResults}
+          </div>
         </div>
-        <div id="main" className={this.state.showNav ? 'menu-open' :''}>
+        <div id="main" className={this.state.showNav ? 'menu-open' :''} onClick={this._closeNav}>
           <div id="header">
             <h2>Flux Hub</h2>
             <button id="on-btn" className="light-btn" onClick={() =>

@@ -25724,7 +25724,7 @@ const createReactClass = __webpack_require__(92);
 const transactions = __webpack_require__(93);
 const Light = __webpack_require__(208);
 const io = __webpack_require__(209);
-const socket = io('localhost:8000');
+const socket = io('http://localhost:8000');
 
 module.exports = createReactClass({
   displayName: 'exports',
@@ -25737,6 +25737,9 @@ module.exports = createReactClass({
         toggleLight: () => this._toggleLights('toggle', [bulb.ipaddr]),
         apikey: this.props.apikey, eventListener: socket }))
     };
+  },
+  _closeNav: function () {
+    if (this.state.showNav) this._toggleNav();
   },
   _toggleNav: function () {
     this.setState({ showNav: !this.state.showNav });
@@ -25769,8 +25772,7 @@ module.exports = createReactClass({
           null,
           'Flux Hub'
         ),
-        React.createElement('link', { rel: 'stylesheet', href: 'resources/css/style.css' }),
-        React.createElement('meta', { name: 'description', content: 'DESCRIPTION' })
+        React.createElement('link', { rel: 'stylesheet', href: 'resources/css/style.css' })
       ),
       React.createElement(
         'body',
@@ -25795,15 +25797,16 @@ module.exports = createReactClass({
             { className: 'menuitem', onClick: this._scan },
             'Scan'
           ),
+          React.createElement('br', null),
           React.createElement(
-            'a',
-            { id: 'test-a' },
+            'div',
+            { className: 'menu-content', hidden: !this.state.showNav },
             this.state.scanResults
           )
         ),
         React.createElement(
           'div',
-          { id: 'main', className: this.state.showNav ? 'menu-open' : '' },
+          { id: 'main', className: this.state.showNav ? 'menu-open' : '', onClick: this._closeNav },
           React.createElement(
             'div',
             { id: 'header' },
@@ -25862,9 +25865,9 @@ module.exports = createReactClass({
 
   getInitialState: function () {
     this.props.eventListener.on('update', data => {
-      if (data.bulb === this.props.ipaddr) {
+      if (data.bulb === this.props.ipaddr && this.refs.root) {
         if (data.powerState) {
-          this.setState({ icon: icons[data.powerState] });
+          this.setState({ powerState: data.powerState });
         }
         if (data.name) {
           this.setState({ name: data.name });
@@ -25877,7 +25880,7 @@ module.exports = createReactClass({
     });
     return {
       name: this.props.name,
-      icon: icons[this.props.powerState],
+      powerState: this.props.powerState,
       brightness: this.props.brightness
     };
   },
@@ -25897,8 +25900,8 @@ module.exports = createReactClass({
     //TODO: ADD BRIGHTNESS SLIDER
     return React.createElement(
       'span',
-      { className: 'lightbulb' },
-      React.createElement('img', { className: 'bulb-image', src: this.state.icon, onClick: this.props.toggleLight }),
+      { className: 'lightbulb', ref: 'root' },
+      React.createElement('img', { className: 'bulb-image', src: icons[this.state.powerState], onClick: this.props.toggleLight }),
       React.createElement('br', null),
       ' ',
       React.createElement('input', { type: 'range', className: 'dimmer', ref: 'dimmer',
