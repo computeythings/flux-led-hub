@@ -109,7 +109,7 @@ app.post('/api/brightness', (req,res) => {
 app.post('/api/scan', (req,res) => {
   console.log('POST /api/scan/');
   if(req.body.access_token === apikey) {
-    var scanner = require('./app/scanner');
+    var scanner = new require('./app/scanner');
     res.writeHead(200, {'Content-Type': 'text/plain'});
     scanner.discover().on('scanComplete', (data) => {
       console.log(JSON.stringify(data));

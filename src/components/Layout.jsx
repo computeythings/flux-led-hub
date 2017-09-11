@@ -13,7 +13,7 @@ module.exports = createReactClass({
         <Light name={bulb.name} ipaddr={bulb.ipaddr} key={bulb.ipaddr}
           powerState={bulb.powerState} brightness={bulb.brightness}
           toggleLight={() => this._toggleLights('toggle', [bulb.ipaddr])}
-          apikey={this.props.apikey} eventListener={socket} />
+          apikey={this.props.apikey} eventListener={socket} />,
       )
     };
   },
@@ -37,8 +37,25 @@ module.exports = createReactClass({
     this.setScanResults(await discovered.json());
   },
   setScanResults: function(lightArray) {
-    this.setState({scanResults: nodupes});
-    //TODO: Handle this in html to create a nice scanned list.
+    var noDupes = [];
+    var hasDupes;
+    for(var i = 0; i < lightArray.length; i++) {
+      hasDupes = false;
+      for(var j = 0; j < this.props.bulbs.length; j++) {
+        if(this.props.bulbs[j].ipaddr === lightArray[i]) {
+          hasDupes = true;
+          break;
+        }
+      }
+      if(!hasDupes) {
+        noDupes.push(lightArray[i]);
+      }
+    }
+    if(noDupes.length > 0)
+      this.setState({scanResults: noDupes});
+    else
+      this.setState({scanResults: 'No New Bulbs Found'});
+    //TODO: ReactJS objects for each bulb, loading animation
   },
   render: function() {
     return (

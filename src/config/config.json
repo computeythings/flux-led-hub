@@ -2,7 +2,7 @@
     "listen": "0.0.0.0",
     "port": 8000,
     "lights": [
-        "10.0.4.21",
+        "bulb1",
         "bulb2",
         "bulb3"
     ],
