@@ -13,6 +13,7 @@ const React = require('react');
 const ReactDOMServer = require('react-dom/server');
 const controller = require('./app/controller');
 const devices = require('./app/devicemanager');
+const dns = require('dns');
 
 const CONFIG = path.resolve(__dirname, 'config/config.json');
 const config = require(CONFIG);
@@ -179,8 +180,10 @@ function startServer() {
 
   // Create usable WifiLedBulb objects from each light given in config
   for (var key in lights) {
-    devices.list[lights[key]] = new controller.WifiLedBulb(lights[key],
-      clientUpdate);
+    dns.lookup(lights[key], (err, addr, fam) => { // resolve any hostnames to IP
+      devices.list[addr] = new controller.WifiLedBulb(addr,
+        clientUpdate);
+    });
   }
 
   server.listen(app.get('port'), listenIP, () => {
