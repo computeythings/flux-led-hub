@@ -45,7 +45,6 @@ module.exports.toggleLights = function(targets) {
   }
   var allOn = true;
   for(var ip in targets) {
-    console.log(this.list);
     if(!this.list[targets[ip]].isOn()) {
       allOn = false;
     }

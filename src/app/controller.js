@@ -1,5 +1,4 @@
 const ping = require('ping');
-const dns = require('dns');
 
 // Some magic numbers here as we're dealing directly with a bytestream
 // - blame Flux for not having an actual API
@@ -20,9 +19,7 @@ module.exports.WifiLedBulb = function (ipaddr, updateCallback) {
     var self = this;
     this.update = updateCallback;
     this.name = '';
-    dns.lookup(ipaddr, (err, addr, fam) => { // resolve any hostnames to IP
-        this.ipaddr = addr;
-    });
+    this.ipaddr = ipaddr;
     this.powerState = NULL_STATE;
     this.brightness = 0;
     this.RGB = [0,0,0];
