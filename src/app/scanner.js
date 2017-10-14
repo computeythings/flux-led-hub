@@ -2,6 +2,7 @@ var dgram = require('dgram');
 var events = require('events');
 var server;
 
+// These constants are predefined and correspond to Flux LED hardware
 const DISCOVERY_PORT = 48899;
 const BROADCAST_ADDR = '255.255.255.255';
 const DISCOVER_MSG = 'HF-A11ASSISTHREAD';

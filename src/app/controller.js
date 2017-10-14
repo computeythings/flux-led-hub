@@ -67,7 +67,7 @@ module.exports.WifiLedBulb = function (ipaddr, updateCallback) {
         'Failed to connect to ' + self.ipaddr);
     });
 
-    // This checks if bulbs are active ever
+    // This checks if bulbs are active every [KEEPALIVE_INTERVAL]
     setInterval(() => {
       if(this.powerState != NULL_STATE)  {
         ping.sys.probe(this.ipaddr, (isAlive) => {

@@ -50,81 +50,62 @@ function clientUpdate(data) {
 //
 // ROUTING
 //
-app.get('/', (req,res) => {
-  console.log('GET /');
-  const props = {
-    apikey: apikey,
-    bulbs: devices.getDevices()
-  };
-  const html = ReactDOMServer.renderToString(
-    React.createElement(require('./components/Layout.jsx'), props)
-  );
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  res.end(html);
+app.get('*', (req,res) => {
+  console.log('GET ' + req.url);
+
+  if(req.url == '/') {
+    const props = {
+      apikey: apikey,
+      bulbs: devices.getDevices()
+    };
+    const html = ReactDOMServer.renderToString(
+      React.createElement(require('./components/Layout.jsx'), props)
+    );
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.end(html);
+  } else {
+    res.writeHead(404, {'Content-Type': 'text/plain'});
+    res.end('Invalid Link!');
+  }
 });
 
-app.post('/api/on/', (req,res) => {
-  console.log('POST /api/on/');
+app.post('*', (req,res) => {
+  console.log('POST ' + req.url);
+
   if(req.body.access_token === apikey) {
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end(devices.lightsOn(req.body.target));
+    switch(req.url) {
+      case '/api/on':
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.end(devices.lightsOn(req.body.target));
+        break;
+      case '/api/off':
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.end(devices.lightsOff(req.body.target));
+        break;
+      case '/api/toggle':
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.end(devices.toggleLights(req.body.target));
+        break;
+      case '/api/brightness':
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.end(devices.setBrightness(req.body.target, req.body.brightness));
+        break;
+      case '/api/scan':
+        var scanner = new require('./app/scanner');
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+        scanner.discover().on('scanComplete', (data) => {
+          console.log(JSON.stringify(data));
+          res.end(JSON.stringify(data));
+        });
+        break;
+      default:
+        res.writeHead(404, {'Content-Type': 'text/plain'});
+        res.end('Invalid Link!');
+    }
   } else {
     res.writeHead(400, {'Content-Type': 'text/plain'});
     res.end('Invalid API Key\n');
   }
-});
-
-app.post('/api/off/', (req,res) => {
-  console.log('POST /api/off/');
-  if(req.body.access_token === apikey) {
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end(devices.lightsOff(req.body.target));
-  } else {
-    res.writeHead(400, {'Content-Type': 'text/plain'});
-    res.end('Invalid API Key\n');
-  }
-});
-
-app.post('/api/toggle', (req,res) => {
-  console.log('POST /api/toggle/');
-  if(req.body.access_token === apikey) {
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end(devices.toggleLights(req.body.target));
-  } else {
-    res.writeHead(400, {'Content-Type': 'text/plain'});
-    res.end('Invalid API Key\n');
-  }
-});
-
-app.post('/api/brightness', (req,res) => {
-  console.log('POST /api/brightness/');
-  if(req.body.access_token === apikey) {
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end(devices.setBrightness(req.body.target, req.body.brightness));
-  } else {
-    res.writeHead(400, {'Content-Type': 'text/plain'});
-    res.end('Invalid API Key\n');
-  }
-})
-
-app.post('/api/scan', (req,res) => {
-  console.log('POST /api/scan/');
-  if(req.body.access_token === apikey) {
-    var scanner = new require('./app/scanner');
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    scanner.discover().on('scanComplete', (data) => {
-      console.log(JSON.stringify(data));
-      res.end(JSON.stringify(data));
-    });
-  } else {
-    res.writeHead(400, {'Content-Type': 'text/plain'});
-    res.end('Invalid API Key\n');
-  }
-});
-
-app.get('*', (req, res) => {
-  res.writeHead(404, {'Content-Type': 'text/plain'});
-  res.end('Invalid Link!');
 });
 
 // This will only be run when the APIKEY line in config.json is empty

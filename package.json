@@ -26,17 +26,18 @@
     "babel-core": "^6.26.0",
     "babel-preset-react": "^6.24.1",
     "babel-register": "^6.26.0",
-    "body-parser": "^1.17.2",
+    "body-parser": "^1.18.2",
     "dgram": "^1.0.1",
     "dns": "^0.2.2",
-    "express": "^4.15.4",
+    "express": "^4.16.2",
     "fs": "0.0.1-security",
     "node-gyp": "^3.6.2",
     "nwbuild": "0.0.5",
     "ping": "^0.2.2",
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1",
-    "react-router": "^3.0.5",
+    "react": "^15.6.2",
+    "react-dom": "^15.6.2",
+    "react-router": "^3.2.0",
+    "react-router-native": "^4.2.0",
     "socket.io": "^2.0.3",
     "socket.io-client": "^2.0.3"
   },
@@ -49,6 +50,6 @@
     "concurrently": "^1.0.0",
     "http-server": "^0.10.0",
     "json-loader": "^0.5.7",
-    "webpack": "^3.5.5"
+    "webpack": "^3.7.1"
   }
 }
