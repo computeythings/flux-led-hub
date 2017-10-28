@@ -2,6 +2,7 @@ const React = require('react');
 const createReactClass = require('create-react-class');
 const transactions = require('./rest.js');
 const Light = require('./Light.jsx');
+const Discoverable = require('./Discoverable.jsx');
 const io = require('socket.io-client');
 const socket = io('http://localhost:8000');
 
@@ -9,6 +10,7 @@ module.exports = createReactClass({
   getInitialState: function() {
     return {
       showNav: false,
+      scanning: false,
       Lights: this.props.bulbs.map((bulb) =>
         <Light name={bulb.name} ipaddr={bulb.ipaddr} key={bulb.ipaddr}
           powerState={bulb.powerState} brightness={bulb.brightness}
@@ -32,11 +34,13 @@ module.exports = createReactClass({
     console.log(await result.text());
   },
   _scan: async function() {
+    this.setState({scanning: true, scanResults: ''});
     let discovered = await transactions.post(
       'scan', {'access_token': this.props.apikey});
     this.setScanResults(await discovered.json());
   },
   setScanResults: function(lightArray) {
+    this.setState({scanning: false});
     var noDupes = [];
     var hasDupes;
     for(var i = 0; i < lightArray.length; i++) {
@@ -51,11 +55,16 @@ module.exports = createReactClass({
         noDupes.push(lightArray[i]);
       }
     }
-    if(noDupes.length > 0)
-      this.setState({scanResults: noDupes});
+    if(noDupes.length > 0) {
+      console.log(noDupes);
+      this.setState({scanResults:
+        noDupes.map(
+          (discovered) => <Discoverable ipaddr={discovered} />,
+       )
+    });
+    }
     else
       this.setState({scanResults: 'No New Bulbs Found'});
-    //TODO: ReactJS objects for each bulb, loading animation
   },
   render: function() {
     return (
@@ -76,7 +85,8 @@ module.exports = createReactClass({
                <span className="hamburger-inner"></span>
              </span>
            </button>
-          <a className="menuitem" onClick={this._scan}>Scan</a><br/>
+          <div id="scan-btn" className="menuitem" onClick={this._scan}>Scan</div>
+          <div className="loader" hidden={!this.state.scanning}></div>
           <div className="menu-content" hidden={!this.state.showNav}>
             {this.state.scanResults}
           </div>

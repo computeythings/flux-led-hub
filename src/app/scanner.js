@@ -54,6 +54,6 @@ module.exports.discover = function() {
 function broadcast() {
   server.send(new Buffer(DISCOVER_MSG), 0, DISCOVER_MSG.length, DISCOVERY_PORT,
     BROADCAST_ADDR, () => {
-      timeout = setTimeout(() => server.close(), 5000);
+      timeout = setTimeout(() => server.close(), 1000);
     });
 }

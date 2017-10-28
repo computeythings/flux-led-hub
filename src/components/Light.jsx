@@ -43,14 +43,13 @@ module.exports = createReactClass({
     this.setBrightness(value);
   },
   render: function(){
-    //TODO: ADD BRIGHTNESS SLIDER
     return (
       <span className="lightbulb" ref="root">
         <img className="bulb-image" src={icons[this.state.powerState]} onClick={this.props.toggleLight}/>
         <br /> <input type="range" className="dimmer" ref="dimmer"
           defaultValue={this.state.brightness}
           onMouseUp={this._handleChange} />
-        <h4>{this.state.name || this.state.ipaddr}</h4>
+        <h4>{this.state.name || this.props.ipaddr}</h4>
       </span>
     );
   }

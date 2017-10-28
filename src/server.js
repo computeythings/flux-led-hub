@@ -47,6 +47,33 @@ function clientUpdate(data) {
   io.sockets.emit('update', data);
 }
 
+function addLight(ipaddr) {
+  var jsonConfig = JSON.parse(fs.readFileSync(CONFIG));
+  jsonConfig.lights.push(ipaddr);
+  devices.list[ipaddr] = new controller.WifiLedBulb(ipaddr,
+    clientUpdate);
+
+  var newFile = JSON.stringify(jsonConfig, null, 4);
+
+  fs.writeFileSync(CONFIG, newFile, "utf8", function(err) {
+    if(err){
+      console.log('Failed to write');
+      return false;
+    } else {
+      console.log('Light ' + ipaddr + 'added');
+      return true;
+    }
+  });
+}
+
+function scanTo(response) {
+  var scanner = new require('./app/scanner');
+  scanner.discover().on('scanComplete', (data) => {
+    console.log(JSON.stringify(data));
+    response.end(JSON.stringify(data));
+  });
+}
+
 //
 // ROUTING
 //
@@ -91,12 +118,8 @@ app.post('*', (req,res) => {
         res.end(devices.setBrightness(req.body.target, req.body.brightness));
         break;
       case '/api/scan':
-        var scanner = new require('./app/scanner');
         res.writeHead(200, {'Content-Type': 'text/plain'});
-        scanner.discover().on('scanComplete', (data) => {
-          console.log(JSON.stringify(data));
-          res.end(JSON.stringify(data));
-        });
+        scanTo(res);
         break;
       default:
         res.writeHead(404, {'Content-Type': 'text/plain'});
@@ -127,25 +150,6 @@ function setAPIKey() {
   });
 
   return newKey;
-}
-
-function addLight(ipaddr) {
-  var jsonConfig = JSON.parse(fs.readFileSync(CONFIG));
-  jsonConfig.lights.push(ipaddr);
-  devices.list[ipaddr] = new controller.WifiLedBulb(ipaddr,
-    clientUpdate);
-
-  var newFile = JSON.stringify(jsonConfig, null, 4);
-
-  fs.writeFileSync(CONFIG, newFile, "utf8", function(err) {
-    if(err){
-      console.log('Failed to write');
-      return false;
-    } else {
-      console.log('Light ' + ipaddr + 'added');
-      return true;
-    }
-  });
 }
 
 /*

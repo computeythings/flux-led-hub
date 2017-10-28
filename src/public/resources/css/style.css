@@ -22,6 +22,14 @@ html, body {
   cursor: pointer;
 }
 
+.discoverable {
+  clear: both;
+  display: block;
+  margin-left: 64px;
+  float: left;
+  text-align: center;
+}
+
 .dimmer {
   width: 50px;
 }
@@ -80,6 +88,10 @@ html, body {
                -3px 3px #222,
                -4px 4px #222,
                -5px 5px #222;
+}
+
+#scan-btn {
+  padding-bottom: 32px;
 }
 
 #main {
@@ -161,4 +173,21 @@ html, body {
 }
 .hamburger--arrowturn.is-active .hamburger-inner::after {
   transform: translate3d(12px, -2.8px, 0) rotate(-45deg) scale(0.6, 1);
+}
+
+/* Loader animation */
+.loader {
+    border: 6px solid #f3f3f3; /* Light grey */
+    border-top: 6px solid #29293d; /* Dark  */
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 2s linear infinite;
+    float: left;
+    margin-left: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

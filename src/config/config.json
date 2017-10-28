@@ -2,9 +2,7 @@
     "listen": "0.0.0.0",
     "port": 8000,
     "lights": [
-        "bulb1",
-        "bulb2",
-        "bulb3"
+        "bulb1"
     ],
     "apikey": "k3m1Eo86BlvhHMD3Q0hCEJ7RAb"
 }
