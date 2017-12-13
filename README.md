@@ -4,7 +4,7 @@ A RESTful server application to offload requests to Flux Wifi LED bulbs.
 ## Installation
 To install, simply clone the directory, install node modules, and execute the initial 'run' script to generate your API key:
 
-    $ git clone https://github.com/gonnelladev/flux-led-hub.git
+    $ git clone https://github.com/computeythings/flux-led-hub.git
     $ cd flux-led-hub
     $ npm install
     $ npm run
