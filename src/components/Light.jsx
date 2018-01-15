@@ -49,7 +49,7 @@ module.exports = createReactClass({
         <br /> <input type="range" className="dimmer" ref="dimmer"
           defaultValue={this.state.brightness}
           onMouseUp={this._handleChange} />
-        <h4>{this.state.name || this.props.ipaddr}</h4>
+        <h4>{this.state.name}</h4>
       </span>
     );
   }

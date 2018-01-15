@@ -26677,6 +26677,12 @@ module.exports = createReactClass({
   displayName: 'exports',
 
   getInitialState: function () {
+    socket.on('newbulb', bulb => {
+      this.setState({ Lights: [...this.state.Lights, React.createElement(Light, { name: bulb.name, ipaddr: bulb.ipaddr, key: bulb.ipaddr,
+          powerState: bulb.powerState, brightness: bulb.brightness,
+          toggleLight: () => this._toggleLights('toggle', [bulb.ipaddr]),
+          apikey: this.props.apikey, eventListener: socket })] });
+    });
     return {
       showNav: false,
       scanning: false,
@@ -26704,6 +26710,14 @@ module.exports = createReactClass({
     let discovered = await transactions.post('scan', { 'access_token': this.props.apikey });
     this.setScanResults((await discovered.json()));
   },
+  addBulb: function (ipaddr, index, name) {
+    let result = transactions.post('add', { 'access_token': this.props.apikey,
+      'ipaddr': ipaddr });
+    var scanList = this.state.scanResults;
+    delete scanList[index];
+    console.log(scanList);
+    this.setState({ scanResults: scanList });
+  },
   setScanResults: function (lightArray) {
     this.setState({ scanning: false });
     var noDupes = [];
@@ -26722,7 +26736,8 @@ module.exports = createReactClass({
     }
     if (noDupes.length > 0) {
       console.log(noDupes);
-      this.setState({ scanResults: noDupes.map(discovered => React.createElement(Discoverable, { ipaddr: discovered }))
+      this.setState({ scanResults: noDupes.map((discovered, index) => React.createElement(Discoverable, { ipaddr: discovered,
+          key: discovered, addBulb: () => this.addBulb(ipaddr = discovered, index = index) }))
       });
     } else this.setState({ scanResults: 'No New Bulbs Found' });
   },
@@ -26877,7 +26892,7 @@ module.exports = createReactClass({
       React.createElement(
         'h4',
         null,
-        this.state.name || this.props.ipaddr
+        this.state.name
       )
     );
   }
@@ -26898,7 +26913,8 @@ module.exports = createReactClass({
     return React.createElement(
       'div',
       { className: 'discoverable' },
-      React.createElement('img', { className: 'bulb-image', src: 'resources/img/on.png', onClick: this.props.toggleLight }),
+      React.createElement('img', { className: 'bulb-image', src: 'resources/img/on.png',
+        onClick: this.props.addBulb }),
       React.createElement('br', null),
       React.createElement(
         'h4',

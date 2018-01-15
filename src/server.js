@@ -43,27 +43,26 @@ function clientRefresh(socket) {
   }
 }
 
-function clientUpdate(data) {
-  io.sockets.emit('update', data);
+function clientUpdate(msg, data) {
+  io.sockets.emit(msg, data);
 }
 
-function addLight(ipaddr) {
+function addLight(ipaddr, name) {
   var jsonConfig = JSON.parse(fs.readFileSync(CONFIG));
-  jsonConfig.lights.push(ipaddr);
+  jsonConfig.lights[ipaddr] = ipaddr;
   devices.list[ipaddr] = new controller.WifiLedBulb(ipaddr,
-    clientUpdate);
+    clientUpdate, name || ipaddr);
 
   var newFile = JSON.stringify(jsonConfig, null, 4);
 
-  fs.writeFileSync(CONFIG, newFile, "utf8", function(err) {
+  fs.writeFileSync(CONFIG, newFile, "utf8", (err) => {
     if(err){
       console.log('Failed to write');
-      return false;
     } else {
       console.log('Light ' + ipaddr + 'added');
-      return true;
     }
   });
+  clientUpdate('newbulb', devices.list[ipaddr].state());
 }
 
 function scanTo(response) {
@@ -121,6 +120,9 @@ app.post('*', (req,res) => {
         res.writeHead(200, {'Content-Type': 'text/plain'});
         scanTo(res);
         break;
+      case '/api/add':
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.end(addLight(req.body.ipaddr));
       default:
         res.writeHead(404, {'Content-Type': 'text/plain'});
         res.end('Invalid Link!');
@@ -165,9 +167,10 @@ function startServer() {
 
   // Create usable WifiLedBulb objects from each light given in config
   for (var key in lights) {
-    dns.lookup(lights[key], (err, addr, fam) => { // resolve any hostnames to IP
+    let devName = lights[key];
+    dns.lookup(key, (err, addr, fam) => { // resolve any hostnames to IP
       devices.list[addr] = new controller.WifiLedBulb(addr,
-        clientUpdate);
+        clientUpdate, devName);
     });
   }
 

@@ -15,10 +15,10 @@ const BLUE_CHUNK = 8;
 const BRIGHTNESS_CHUNK = 9;
 const KEEPALIVE_INTERVAL = 5000; // time in ms
 
-module.exports.WifiLedBulb = function (ipaddr, updateCallback) {
+module.exports.WifiLedBulb = function (ipaddr, updateCallback, name) {
     var self = this;
     this.update = updateCallback;
-    this.name = '';
+    this.name = name;
     this.ipaddr = ipaddr;
     this.powerState = NULL_STATE;
     this.brightness = 0;
@@ -33,13 +33,13 @@ module.exports.WifiLedBulb = function (ipaddr, updateCallback) {
         self.powerState = ON_STATE;
         console.log('[' + new Date().toLocaleString() + '] ' +
           self.ipaddr + ' - ON');
-          self.update({ bulb: self.ipaddr, powerState: self.powerState});
+          self.update('update', { bulb: self.ipaddr, powerState: self.powerState});
       }
       else if(powerByte == OFF_STATE && powerByte != self.powerState) {
         self.powerState = OFF_STATE;
         console.log('[' + new Date().toLocaleString() + '] ' +
           self.ipaddr + ' - OFF');
-          self.update({ bulb: self.ipaddr, powerState: self.powerState});
+          self.update('update', { bulb: self.ipaddr, powerState: self.powerState});
       }
 
       var r = chunk[RED_CHUNK];
@@ -59,7 +59,7 @@ module.exports.WifiLedBulb = function (ipaddr, updateCallback) {
       console.log('[' + new Date().toLocaleString() + '] ' +
         'Refreshing socket ' + self.ipaddr);
       self.powerState = NULL_STATE;
-      self.update({ bulb: self.ipaddr, powerState: self.powerState});
+      self.update('update', { bulb: self.ipaddr, powerState: self.powerState});
       self.socket.connect(5577, self.ipaddr);
     })
     .on('error', () => {

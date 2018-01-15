@@ -1,8 +1,8 @@
 {
     "listen": "0.0.0.0",
     "port": 8000,
-    "lights": [
-        "bulb1"
-    ],
-    "apikey": "k3m1Eo86BlvhHMD3Q0hCEJ7RAb"
+    "lights": {
+        "bulb1": "My Bulb 1"
+    },
+    "apikey": ""
 }

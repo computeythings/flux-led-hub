@@ -8,6 +8,14 @@ const socket = io('http://localhost:8000');
 
 module.exports = createReactClass({
   getInitialState: function() {
+    socket.on('newbulb', (bulb) => {
+      this.setState({ Lights: [...this.state.Lights,
+        <Light name={bulb.name} ipaddr={bulb.ipaddr} key={bulb.ipaddr}
+          powerState={bulb.powerState} brightness={bulb.brightness}
+          toggleLight={() => this._toggleLights('toggle', [bulb.ipaddr])}
+          apikey={this.props.apikey} eventListener={socket} />
+        ]});
+    });
     return {
       showNav: false,
       scanning: false,
@@ -39,6 +47,14 @@ module.exports = createReactClass({
       'scan', {'access_token': this.props.apikey});
     this.setScanResults(await discovered.json());
   },
+  addBulb: function(ipaddr, index, name) {
+    let result = transactions.post('add', {'access_token': this.props.apikey,
+                        'ipaddr': ipaddr});
+    var scanList = this.state.scanResults;
+    delete scanList[index];
+    console.log(scanList);
+    this.setState({scanResults: scanList});
+  },
   setScanResults: function(lightArray) {
     this.setState({scanning: false});
     var noDupes = [];
@@ -59,7 +75,9 @@ module.exports = createReactClass({
       console.log(noDupes);
       this.setState({scanResults:
         noDupes.map(
-          (discovered) => <Discoverable ipaddr={discovered} />,
+          (discovered, index) => <Discoverable ipaddr={discovered}
+                key={discovered} addBulb={() =>
+                this.addBulb(ipaddr=discovered, index=index)}/>,
        )
     });
     }
