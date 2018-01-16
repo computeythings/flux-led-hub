@@ -32,9 +32,12 @@ var apikey;
 
 // Socket.io stuff for async transactions between server and clientrc/app/
 const io = require('socket.io')(server);
-io.on('connection', (socket) => {
-  console.log('new connection')
+io.once('connection', (socket) => {
+  console.log('new connection ' + socket.id);
   clientRefresh(socket);
+  socket.on('disconnect', () => {
+    console.log('disconnect happened ' + socket.id);
+  })
 });
 
 function clientRefresh(socket) {
@@ -55,14 +58,14 @@ function addLight(ipaddr, name) {
 
   var newFile = JSON.stringify(jsonConfig, null, 4);
 
-  fs.writeFileSync(CONFIG, newFile, "utf8", (err) => {
+  fs.writeFile(CONFIG, newFile, "utf8", (err) => {
     if(err){
       console.log('Failed to write');
     } else {
-      console.log('Light ' + ipaddr + 'added');
+      console.log('Light ' + ipaddr + ' added');
+      clientUpdate('newbulb', devices.list[ipaddr].state());
     }
   });
-  clientUpdate('newbulb', devices.list[ipaddr].state());
 }
 
 function scanTo(response) {

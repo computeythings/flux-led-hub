@@ -1,14 +1,18 @@
 const React = require('react');
 const createReactClass = require('create-react-class');
+const Modal = require('react-modal');
 const transactions = require('./rest.js');
 const Light = require('./Light.jsx');
+const BulbProperties = require('./BulbProperties.jsx');
 const Discoverable = require('./Discoverable.jsx');
 const io = require('socket.io-client');
 const socket = io('http://localhost:8000');
 
 module.exports = createReactClass({
-  getInitialState: function() {
+  componentDidMount: function() {
+    // 'newbulb' received when a new device is added via scan
     socket.on('newbulb', (bulb) => {
+      console.log(`Adding new bulb ${bulb.ipaddr}`);
       this.setState({ Lights: [...this.state.Lights,
         <Light name={bulb.name} ipaddr={bulb.ipaddr} key={bulb.ipaddr}
           powerState={bulb.powerState} brightness={bulb.brightness}
@@ -16,13 +20,18 @@ module.exports = createReactClass({
           apikey={this.props.apikey} eventListener={socket} />
         ]});
     });
+  },
+  getInitialState: function() {
+    // Default values - hide navbar + not scanning + map of saved devices list
     return {
       showNav: false,
+      showProperties: false,
       scanning: false,
       Lights: this.props.bulbs.map((bulb) =>
         <Light name={bulb.name} ipaddr={bulb.ipaddr} key={bulb.ipaddr}
           powerState={bulb.powerState} brightness={bulb.brightness}
           toggleLight={() => this._toggleLights('toggle', [bulb.ipaddr])}
+          edit={() => this._editBulb(bulb.ipaddr)}
           apikey={this.props.apikey} eventListener={socket} />,
       )
     };
@@ -33,6 +42,21 @@ module.exports = createReactClass({
   },
   _toggleNav: function() {
     this.setState({showNav: !this.state.showNav});
+  },
+  _toggleProperties: function() {
+    this.setState({showProperties: !this.state.showProperties});
+  },
+  _addBulb: function(ipaddr, index, name) {
+    transactions.post('add', {'access_token': this.props.apikey,
+                        'ipaddr': ipaddr});
+    var scanList = this.state.scanResults;
+    delete scanList[index];
+    console.log(scanList);
+    this.setState({scanResults: scanList});
+  },
+  _editBulb: function(ipaddr) {
+    this._toggleProperties();
+    this.setState({modalContent: <BulbProperties ipaddr={ipaddr}/>});
   },
   _toggleLights: async function(url, target) {
     let result = await transactions.post(url, {
@@ -46,14 +70,6 @@ module.exports = createReactClass({
     let discovered = await transactions.post(
       'scan', {'access_token': this.props.apikey});
     this.setScanResults(await discovered.json());
-  },
-  addBulb: function(ipaddr, index, name) {
-    let result = transactions.post('add', {'access_token': this.props.apikey,
-                        'ipaddr': ipaddr});
-    var scanList = this.state.scanResults;
-    delete scanList[index];
-    console.log(scanList);
-    this.setState({scanResults: scanList});
   },
   setScanResults: function(lightArray) {
     this.setState({scanning: false});
@@ -76,8 +92,8 @@ module.exports = createReactClass({
       this.setState({scanResults:
         noDupes.map(
           (discovered, index) => <Discoverable ipaddr={discovered}
-                key={discovered} addBulb={() =>
-                this.addBulb(ipaddr=discovered, index=index)}/>,
+                key={discovered} _addBulb={() =>
+                this._addBulb(ipaddr=discovered, index=index)}/>,
        )
     });
     }
@@ -103,13 +119,20 @@ module.exports = createReactClass({
                <span className="hamburger-inner"></span>
              </span>
            </button>
-          <div id="scan-btn" className="menuitem" onClick={this._scan}>Scan</div>
+          <div id="scan-btn" className="menuitem"
+            onClick={this._scan}>Scan
+          </div>
           <div className="loader" hidden={!this.state.scanning}></div>
           <div className="menu-content" hidden={!this.state.showNav}>
             {this.state.scanResults}
           </div>
         </div>
-        <div id="main" className={this.state.showNav ? 'menu-open' :''} onClick={this._closeNav}>
+        <div id="main" className={this.state.showNav ? 'menu-open' :''}
+          onClick={this._closeNav}>
+          <Modal className="modal" isOpen={this.state.showProperties}
+            ariaHideApp={false}>
+            {this.state.modalContent}
+          </Modal>
           <div id="header">
             <h2>Flux Hub</h2>
             <button id="on-btn" className="light-btn" onClick={() =>

@@ -13,12 +13,23 @@ html, body {
 /* lightbulb image styling */
 .lightbulb {
   display: inline-block;
-  padding: 25px;
+  text-align: center;
+  padding: 30px;
+  position: relative;
 }
 
 .bulb-image {
-  width:50px;
-  height:70px;
+  width:60px;
+  height:85px;
+  cursor: pointer;
+}
+
+.edit-icon {
+  position: absolute;
+  top: 30px;
+  right: 10px;
+  height: 20px;
+  width: 20px;
   cursor: pointer;
 }
 
@@ -39,7 +50,6 @@ html, body {
     height: 100%;
     width: 60px;
     position: fixed;
-    z-index: 1;
     top: 0;
     left: 0;
     background-color: #fff;
@@ -198,7 +208,7 @@ html, body {
 
 /* Modal Window */
 .modal {
-    display: none; /* Hidden by default */
+    display: block; /* Hidden by default */
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */
     left: 0;
@@ -207,15 +217,16 @@ html, body {
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
     background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
 }
 
 .modal-content {
-    background-color: #fefefe;
+    background-color: #333;
     margin: 15% auto; /* 15% from the top and centered */
     padding: 20px;
-    border: 1px solid #888;
-    width: 80%; /* Could be more or less, depending on screen size */
+    border-radius: 10px;
+    border: 1px solid #666;
+    width: 70%; /* Could be more or less, depending on screen size */
 }
 
 .close {
