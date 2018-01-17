@@ -22,7 +22,9 @@ module.exports.WifiLedBulb = function (ipaddr, updateCallback, name) {
     this.ipaddr = ipaddr;
     this.powerState = NULL_STATE;
     this.brightness = 0;
-    this.RGB = [0,0,0];
+    this.RGB = [0,0,0]; // This is the current RGB value of the bulb
+    this.colorBrightest = [255,255,255]; // This is the cached color of the bulb
+    this.isColor = false;
     this.socket = require('net').Socket();
 
     this.socket.connect(5577, ipaddr)
@@ -48,10 +50,22 @@ module.exports.WifiLedBulb = function (ipaddr, updateCallback, name) {
       self.RGB = [r,g,b];
 
       var brightnessByte = chunk[BRIGHTNESS_CHUNK];
-      if(brightnessByte){
+      if(r == 0 && g == 0 && b == 0) {
         self.brightness = parseInt((brightnessByte / 255)*100);
+        self.isColor = false;
       } else {
+        self.isColor = true;
         var rgbMax = Math.max.apply(Math, self.RGB);
+        if(rgbMax > 0)
+          var maxBrightness = 255/rgbMax;
+        else
+          var maxBrightness = 255/1;
+
+        self.colorBrightest = [
+          parseInt(self.RGB[0]*maxBrightness),
+          parseInt(self.RGB[1]*maxBrightness),
+          parseInt(self.RGB[2]*maxBrightness)
+        ];
         self.brightness = parseInt((rgbMax / 255)*100);
       }
     })
@@ -93,24 +107,60 @@ exports.WifiLedBulb.prototype = {
     this.socket.write(buffer);
   },
   setBrightness: function(level) {
+    // adjust for inappropriate values
     if(level > 100)
       level = 100;
     if(level < 0)
       level = 0;
-    var brightness = parseInt((level * 255)/100);
-    var postfix = (0x4f + brightness) & 0xff;
-    var buffer =  new Buffer([0x31, 0x00, 0x00, 0x00, brightness, 0x0f, 0x0f,
-      postfix]);
-    this.brightness = level;
-    this.update({ bulb: this.ipaddr, brightness: this.brightness});
-    this.socket.write(buffer);
+
+    if(this.isColor) {
+      this.setColorBrightness(level);
+    }
+    else {
+      this.setWarmWhite(level);
+    }
   },
   setColor: function(red, green, blue) {
-    var buffer =  new Buffer([0x31, red, green, blue, 0x00, 0x0f, 0x0f,
+    // adjust for inappropriate
+    if(red > 255)
+      red = 255;
+    if(green > 255)
+      green = 255;
+    if(blue > 255)
+      blue = 255;
+    if(red < 0)
+      red = 0;
+    if(green < 0)
+      green = 0;
+    if(blue < 0)
+      blue = 0;
+
+    var postfix = (0x130 + red+green+blue) & 0xff;
+    var buffer =  new Buffer([0x31, red, green, blue, 0x00, 0xf0, 0x0f,
       postfix]);
-    this.RGB = [red,green,blue];
-    this.update({ bulb: this.ipaddr, RGB: this.RGB});
+    this.colorBrightest = [red,green,blue];
     this.socket.write(buffer);
+  },
+  setColorBrightness: function(level) {
+    if(level > 0) {
+      var adjustment = level/100;
+
+      var red = parseInt(this.colorBrightest[0]*adjustment);
+      var green = parseInt(this.colorBrightest[1]*adjustment)
+      var blue = parseInt(this.colorBrightest[2]*adjustment);
+
+      var postfix = (0x130 + red+green+blue) & 0xff;
+      var buffer =  new Buffer([0x31, red, green, blue, 0x00, 0xf0, 0x0f,
+        postfix]);
+      this.socket.write(buffer);
+    } else {
+      var postfix = (0x130 + 0+0+0) & 0xff;
+      var buffer =  new Buffer([0x31, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x0f,
+        postfix]);
+      this.socket.write(buffer);
+    }
+    this.brightness = level;
+    this.update({ bulb: this.ipaddr, brightness: this.brightness});
   },
   setWarmWhite: function(level) {
     if(level > 100 || level < 0)

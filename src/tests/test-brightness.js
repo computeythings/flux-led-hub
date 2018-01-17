@@ -1,6 +1,7 @@
 const server = require('./demo-server');
 
-const DELAY = 500;
+const DELAY = 1000;
+const NETWORK_DELAY = 200;
 const LEVEL_SHIFT = 25; // test brightness in increments of 25%
 
 var devices = server.getLights();
@@ -9,17 +10,18 @@ var failedTests = 0;
 function setBrightness(level) {
   for(var key in devices) {
     var response = devices[key].setBrightness(level);
-    assert(level,response);
+    setTimeout(assert, NETWORK_DELAY, devices[key], level);
   }
 }
 
-function assert(level, response) {
+function assert(device, level) {
   if(level > 100)
     level = 100;
   if(level < 0)
     level = 0;
 
-  if(level == response) {
+      console.log(device.state().brightness);
+  if(level == device.state().brightness) {
     console.log('✔ Brightness set successfully');
   }
   else {
@@ -66,4 +68,4 @@ function runTests() {
   setTimeout(finish, time);
 }
 
-runTests();
+setTimeout(runTests, 1000);
