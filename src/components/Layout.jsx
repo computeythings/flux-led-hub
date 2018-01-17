@@ -56,7 +56,9 @@ module.exports = createReactClass({
   },
   _editBulb: function(ipaddr) {
     this._toggleProperties();
-    this.setState({modalContent: <BulbProperties ipaddr={ipaddr}/>});
+    this.setState({modalContent:
+      <BulbProperties hide={() => this._toggleProperties()} ipaddr={ipaddr}/>
+    });
   },
   _toggleLights: async function(url, target) {
     let result = await transactions.post(url, {

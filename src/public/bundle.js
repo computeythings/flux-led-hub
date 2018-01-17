@@ -27312,7 +27312,8 @@ module.exports = createReactClass({
   },
   _editBulb: function (ipaddr) {
     this._toggleProperties();
-    this.setState({ modalContent: React.createElement(BulbProperties, { ipaddr: ipaddr }) });
+    this.setState({ modalContent: React.createElement(BulbProperties, { hide: () => this._toggleProperties(), ipaddr: ipaddr })
+    });
   },
   _toggleLights: async function (url, target) {
     let result = await transactions.post(url, {
@@ -28603,33 +28604,49 @@ module.exports = createReactClass({
 /* 231 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(console) {const React = __webpack_require__(15);
+const React = __webpack_require__(15);
 const createReactClass = __webpack_require__(38);
 
 module.exports = createReactClass({
   displayName: 'exports',
 
-  handleClick(e) {
-    if (this.node.contains(e.target)) {
-      console.log('You clicked INSIDE the component.');
-    } else {
-      console.log('You clicked OUTSIDE the component.');
-    }
-  },
   render: function () {
+    // TODO: Implement bulb edit form
     return React.createElement(
       'div',
       { className: 'modal-content' },
       React.createElement(
         'h1',
         null,
-        'contentjsx ',
         this.props.ipaddr
+      ),
+      React.createElement(
+        'ul',
+        null,
+        React.createElement(
+          'li',
+          null,
+          'name'
+        ),
+        React.createElement(
+          'li',
+          null,
+          'color'
+        ),
+        React.createElement(
+          'li',
+          null,
+          'brightness'
+        ),
+        React.createElement(
+          'li',
+          null,
+          'groups?'
+        )
       )
     );
   }
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
 
 /***/ }),
 /* 232 */

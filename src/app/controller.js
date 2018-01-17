@@ -93,6 +93,26 @@ exports.WifiLedBulb.prototype = {
     this.socket.write(buffer);
   },
   setBrightness: function(level) {
+    if(level > 100)
+      level = 100;
+    if(level < 0)
+      level = 0;
+    var brightness = parseInt((level * 255)/100);
+    var postfix = (0x4f + brightness) & 0xff;
+    var buffer =  new Buffer([0x31, 0x00, 0x00, 0x00, brightness, 0x0f, 0x0f,
+      postfix]);
+    this.brightness = level;
+    this.update({ bulb: this.ipaddr, brightness: this.brightness});
+    this.socket.write(buffer);
+  },
+  setColor: function(red, green, blue) {
+    var buffer =  new Buffer([0x31, red, green, blue, 0x00, 0x0f, 0x0f,
+      postfix]);
+    this.RGB = [red,green,blue];
+    this.update({ bulb: this.ipaddr, RGB: this.RGB});
+    this.socket.write(buffer);
+  },
+  setWarmWhite: function(level) {
     if(level > 100 || level < 0)
       return false;
     var brightness = parseInt((level * 255)/100);

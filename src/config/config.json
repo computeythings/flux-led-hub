@@ -2,6 +2,7 @@
     "listen": "0.0.0.0",
     "port": 8000,
     "lights": {
+        "10.0.4.100": "10.0.4.100"
     },
-    "apikey": ""
+    "apikey": "ts1ObmK4FYy2W6G9pFvpzIoM6p"
 }
