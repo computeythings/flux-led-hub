@@ -1,3 +1,4 @@
+const colors = require('./colorkeys');
 module.exports.list = {};
 
 module.exports.lightsOn = function(targets) {
@@ -65,11 +66,52 @@ module.exports.setBrightness = function(targets, level) {
 
   for(var ip in targets) {
     if(targets[ip] in this.list){
-      console.log('setting brightness of ' + targets[ip]);
       this.list[targets[ip]].setBrightness(level);
     }
   }
   return 'setting brightness of ' + targets.length + ' lights to '+ level +'\n';
+},
+
+module.exports.setWarmWhite = function(targets) {
+  if(targets === 'all') {
+    var i = 0;
+    for(var key in this.list) {
+      this.list[key].setWarmWhite();
+      i++;
+    }
+    return 'setting ' + i + ' lights to warm white\n';
+  }
+
+  for(var ip in targets) {
+    if(targets[ip] in this.list){
+      this.list[targets[ip]].setWarmWhite();
+    }
+  }
+  return 'setting ' + targets.length + ' lights to warm white\n';
+},
+
+module.exports.setColor = function(targets, colorValue) {
+  //TODO: CHECK FOR IMPROPER INPUTS
+  if(typeof colorValue === 'string' &&  colors[colorValue]) {
+    colorValue = colors[colorValue];
+  }
+  var rgb = hexToRGB(colorValue);
+
+  if(targets === 'all') {
+    var i = 0;
+    for(var key in this.list) {
+      this.list[key].setColor(rgb[0], rbg[1], rgb[2]);
+      i++;
+    }
+    return 'setting color of ' + i + ' lights to '+ rgb +'\n';
+  }
+
+  for(var ip in targets) {
+    if(targets[ip] in this.list){
+      this.list[targets[ip]].setColor(rgb[0], rgb[1], rgb[2]);
+    }
+  }
+  return 'setting color of ' + targets.length + ' lights to '+ rgb +'\n';
 },
 
 module.exports.getDevices = function() {
@@ -80,4 +122,13 @@ module.exports.getDevices = function() {
     i++;
   }
   return devList;
+}
+
+function hexToRGB(hex) {
+  var bigint = parseInt(hex, 16);
+  var r = (bigint >> 16) & 255;
+  var g = (bigint >> 8) & 255;
+  var b = bigint & 255;
+
+  return [r, g, b];
 }

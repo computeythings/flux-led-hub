@@ -117,7 +117,7 @@ exports.WifiLedBulb.prototype = {
       this.setColorBrightness(level);
     }
     else {
-      this.setWarmWhite(level);
+      this.setWarmWhiteBrightness(level);
     }
   },
   setColor: function(red, green, blue) {
@@ -139,6 +139,7 @@ exports.WifiLedBulb.prototype = {
     var buffer =  new Buffer([0x31, red, green, blue, 0x00, 0xf0, 0x0f,
       postfix]);
     this.colorBrightest = [red,green,blue];
+    this.update({ bulb: this.ipaddr, isColor: true});
     this.socket.write(buffer);
   },
   setColorBrightness: function(level) {
@@ -162,7 +163,14 @@ exports.WifiLedBulb.prototype = {
     this.brightness = level;
     this.update({ bulb: this.ipaddr, brightness: this.brightness});
   },
-  setWarmWhite: function(level) {
+  setWarmWhite: function() {
+    var postfix = (0x4f + this.brightness) & 0xff;
+    var buffer =  new Buffer([0x31, 0x00, 0x00, 0x00, this.brightness, 0x0f, 0x0f,
+      postfix]);
+    this.update({ bulb: this.ipaddr, isColor: false});
+    this.socket.write(buffer);
+  },
+  setWarmWhiteBrightness: function(level) {
     if(level > 100 || level < 0)
       return false;
     var brightness = parseInt((level * 255)/100);

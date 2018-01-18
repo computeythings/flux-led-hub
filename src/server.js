@@ -119,6 +119,14 @@ app.post('*', (req,res) => {
         res.writeHead(200, {'Content-Type': 'text/plain'});
         res.end(devices.setBrightness(req.body.target, req.body.brightness));
         break;
+      case '/api/ww':
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.end(devices.setWarmWhite(req.body.target));
+        break;
+      case '/api/color':
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.end(devices.setColor(req.body.target, req.body.colorValue));
+        break;
       case '/api/scan':
         res.writeHead(200, {'Content-Type': 'text/plain'});
         scanTo(res);
