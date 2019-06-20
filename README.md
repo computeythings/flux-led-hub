@@ -7,7 +7,7 @@ To install, simply clone the directory, install node modules, and execute the in
     $ git clone https://github.com/computeythings/flux-led-hub.git
     $ cd flux-led-hub
     $ npm install
-    $ npm run
+    $ npm start
 
 
 ### Dependencies
