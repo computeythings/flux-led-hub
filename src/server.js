@@ -1,7 +1,3 @@
-require('babel-register')({
-    presets: ['react']
-});
-
 const keygen = require('./app/keygen.js');
 const express = require('express');
 const fs = require('fs');
@@ -9,8 +5,6 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const app = express();
 const server = require('http').createServer(app);
-const React = require('react');
-const ReactDOMServer = require('react-dom/server');
 const controller = require('./app/controller');
 const devices = require('./app/devicemanager');
 const dns = require('dns');
@@ -29,52 +23,6 @@ app.disable('x-powered-by'); // security restritcion
 var port;
 var lights;
 var apikey;
-
-// Socket.io stuff for async transactions between server and clientrc/app/
-const io = require('socket.io')(server);
-io.once('connection', (socket) => {
-  console.log('new connection ' + socket.id);
-  clientRefresh(socket);
-  socket.on('disconnect', () => {
-    console.log('disconnect happened ' + socket.id);
-  })
-});
-
-function clientRefresh(socket) {
-  for(var key in devices.list) {
-    socket.emit('update', devices.list[key].state());
-  }
-}
-
-function clientUpdate(msg, data) {
-  io.sockets.emit(msg, data);
-}
-
-function addLight(ipaddr, name) {
-  var jsonConfig = JSON.parse(fs.readFileSync(CONFIG));
-  jsonConfig.lights[ipaddr] = ipaddr;
-  devices.list[ipaddr] = new controller.WifiLedBulb(ipaddr,
-    clientUpdate, name || ipaddr);
-
-  var newFile = JSON.stringify(jsonConfig, null, 4);
-
-  fs.writeFile(CONFIG, newFile, "utf8", (err) => {
-    if(err){
-      console.log('Failed to write');
-    } else {
-      console.log('Light ' + ipaddr + ' added');
-      clientUpdate('newbulb', devices.list[ipaddr].state());
-    }
-  });
-}
-
-function scanTo(response) {
-  var scanner = new require('./app/scanner');
-  scanner.discover().on('scanComplete', (data) => {
-    console.log(JSON.stringify(data));
-    response.end(JSON.stringify(data));
-  });
-}
 
 //
 // ROUTING
@@ -180,8 +128,7 @@ function startServer() {
   for (var key in lights) {
     let devName = lights[key];
     dns.lookup(key, (err, addr, fam) => { // resolve any hostnames to IP
-      devices.list[addr] = new controller.WifiLedBulb(addr,
-        clientUpdate, devName);
+      devices.list[addr] = new controller.WifiLedBulb(addr, devName);
     });
   }
 

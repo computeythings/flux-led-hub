@@ -4,9 +4,6 @@
   "description": "Flux Wifi LED Hub",
   "main": "src/server.js",
   "scripts": {
-    "webpack-watch": "webpack -w",
-    "express-server": "nodemon src/server.js --ext js,jsx",
-    "dev": "concurrent --kill-others \"npm run webpack-watch\" \"npm run express-server\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/server.js"
   },
@@ -23,34 +20,9 @@
   "author": "Bryan Gonnella",
   "license": "ISC",
   "dependencies": {
-    "babel-core": "^6.26.0",
-    "babel-preset-react": "^6.24.1",
-    "babel-register": "^6.26.0",
-    "body-parser": "^1.18.2",
+    "body-parser": "^1.19.0",
     "dgram": "^1.0.1",
-    "dns": "^0.2.2",
-    "express": "^4.16.2",
-    "fs": "0.0.1-security",
-    "node-gyp": "^3.6.2",
-    "nwbuild": "0.0.5",
-    "ping": "^0.2.2",
-    "react": "^15.6.2",
-    "react-dom": "^15.6.2",
-    "react-modal": "^3.1.11",
-    "react-router": "^3.2.0",
-    "react-router-native": "^4.2.0",
-    "socket.io": "^2.0.4",
-    "socket.io-client": "^2.0.4"
-  },
-  "peerDependencies": {
-    "react": ">=15.0.*",
-    "react-dom": ">=15.0.*"
-  },
-  "devDependencies": {
-    "babel-loader": "^7.1.2",
-    "concurrently": "^1.0.0",
-    "http-server": "^0.10.0",
-    "json-loader": "^0.5.7",
-    "webpack": "^3.10.0"
+    "express": "^4.17.1",
+    "ping": "^0.2.2"
   }
 }

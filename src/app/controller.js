@@ -15,9 +15,12 @@ const BLUE_CHUNK = 8;
 const BRIGHTNESS_CHUNK = 9;
 const KEEPALIVE_INTERVAL = 5000; // time in ms
 
-module.exports.WifiLedBulb = function (ipaddr, updateCallback, name) {
+// Formula for adjusting brightness with RGB:
+// Fast: (0.299*R + 0.587*G + 0.114*B)
+// Slower: sqrt( 0.299*R^2 + 0.587*G^2 + 0.114*B^2 )
+
+module.exports.WifiLedBulb = function (ipaddr, name) {
     var self = this;
-    this.update = updateCallback;
     this.name = name;
     this.ipaddr = ipaddr;
     this.powerState = NULL_STATE;
@@ -35,13 +38,11 @@ module.exports.WifiLedBulb = function (ipaddr, updateCallback, name) {
         self.powerState = ON_STATE;
         console.log('[' + new Date().toLocaleString() + '] ' +
           self.ipaddr + ' - ON');
-          self.update('update', { bulb: self.ipaddr, powerState: self.powerState});
       }
       else if(powerByte == OFF_STATE && powerByte != self.powerState) {
         self.powerState = OFF_STATE;
         console.log('[' + new Date().toLocaleString() + '] ' +
           self.ipaddr + ' - OFF');
-          self.update('update', { bulb: self.ipaddr, powerState: self.powerState});
       }
 
       var r = chunk[RED_CHUNK];
@@ -73,7 +74,6 @@ module.exports.WifiLedBulb = function (ipaddr, updateCallback, name) {
       console.log('[' + new Date().toLocaleString() + '] ' +
         'Refreshing socket ' + self.ipaddr);
       self.powerState = NULL_STATE;
-      self.update('update', { bulb: self.ipaddr, powerState: self.powerState});
       self.socket.connect(5577, self.ipaddr);
     })
     .on('error', () => {
@@ -139,7 +139,6 @@ exports.WifiLedBulb.prototype = {
     var buffer =  new Buffer([0x31, red, green, blue, 0x00, 0xf0, 0x0f,
       postfix]);
     this.colorBrightest = [red,green,blue];
-    this.update({ bulb: this.ipaddr, isColor: true});
     this.socket.write(buffer);
   },
   setColorBrightness: function(level) {
@@ -161,13 +160,11 @@ exports.WifiLedBulb.prototype = {
       this.socket.write(buffer);
     }
     this.brightness = level;
-    this.update({ bulb: this.ipaddr, brightness: this.brightness});
   },
   setWarmWhite: function() {
     var postfix = (0x4f + this.brightness) & 0xff;
     var buffer =  new Buffer([0x31, 0x00, 0x00, 0x00, this.brightness, 0x0f, 0x0f,
       postfix]);
-    this.update({ bulb: this.ipaddr, isColor: false});
     this.socket.write(buffer);
   },
   setWarmWhiteBrightness: function(level) {
@@ -178,7 +175,6 @@ exports.WifiLedBulb.prototype = {
     var buffer =  new Buffer([0x31, 0x00, 0x00, 0x00, brightness, 0x0f, 0x0f,
       postfix]);
     this.brightness = level;
-    this.update({ bulb: this.ipaddr, brightness: this.brightness});
     this.socket.write(buffer);
   },
   state: function() {
