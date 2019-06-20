@@ -27,19 +27,3 @@ Once you have finished with your configuration, you can start the server with `n
 To control lights from other devices you must `POST` requests to `http://<your.server.ip>/api/{on,off,toggle}` and include the api key in the POST data as "access_token".
 
 For example a quick test to toggle the lights can be accomplished with `curl --data "access_token=<yourAPIkey>" http://<your.server.ip>:8000/api/toggle`
-
-## Testing
-Tests are currently all included within the server.js file.
-To run a test simply run `npm test -- <options>` with a space deliniated list of tests as the options. Tests listed will be completed with a 3 second delay between each of them.
-
-For example: `npm test -- on off` will connect with all of the lights listed in the config file, turn them on, wait 3 seconds, then turn them off.
-
-Testing does not require an API key be set and will not set one unless the apikey test is run.
-
-#### Test Options
-- on: turn all lights on
-- off: turn all lights off
-- toggle: toggle all lights
-- apikey: generate new API Key in config.json file. CAUTION: this will overwrite your existing key.
-
-These options can also be found with the `npm test -- help` command.
