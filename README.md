@@ -9,6 +9,10 @@ To install, simply clone the directory, install node modules, and execute the in
     $ npm install
     $ npm start
 
+Or install with docker:
+
+    $ docker run --name flux-led-hub -d -p 8000:8000 -v /path/to/host:/config gonnelladev/nodejs-flux-hub
+
 
 ### Dependencies
 - [Node.js](https://nodejs.org)
