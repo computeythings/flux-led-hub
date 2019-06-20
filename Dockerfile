@@ -6,5 +6,5 @@ RUN npm install
 
 EXPOSE 8000
 EXPOSE 48899
-VOLUME /usr/src/app/src/config
+VOLUME /config
 CMD [ "npm", "start" ]

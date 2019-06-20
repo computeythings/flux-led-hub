@@ -1,3 +1,4 @@
+"use strict"
 const ping = require('ping');
 
 // Some magic numbers here as we're dealing directly with a bytestream
@@ -19,7 +20,7 @@ const KEEPALIVE_INTERVAL = 5000; // time in ms
 // Fast: (0.299*R + 0.587*G + 0.114*B)
 // Slower: sqrt( 0.299*R^2 + 0.587*G^2 + 0.114*B^2 )
 
-module.exports.WifiLedBulb = function (ipaddr, name) {
+module.exports = function (ipaddr, name) {
     var self = this;
     this.name = name;
     this.ipaddr = ipaddr;
@@ -97,7 +98,7 @@ module.exports.WifiLedBulb = function (ipaddr, name) {
     }, KEEPALIVE_INTERVAL);
 }
 
-exports.WifiLedBulb.prototype = {
+exports.prototype = {
   turnOn: function() {
     var buffer = new Buffer(POWER_ON);
     this.socket.write(buffer);

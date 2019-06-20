@@ -1,3 +1,4 @@
+"use strict"
 var dgram = require('dgram');
 var events = require('events');
 var server;

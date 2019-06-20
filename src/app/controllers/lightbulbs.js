@@ -1,7 +1,10 @@
-const colors = require('./colorkeys');
-module.exports.list = {};
+"use strict"
+const colors = require('../util/colorkeys.js');
+const config = require('./config.js');
 
-module.exports.lightsOn = function(targets) {
+const list = config.getLights();
+
+exports.lightsOn = function(targets) {
   if(targets === 'all') {
     var i = 0;
     for(var key in this.list) {
@@ -18,7 +21,7 @@ module.exports.lightsOn = function(targets) {
   return 'turning on ' + targets.length + ' lights\n';
 },
 
-module.exports.lightsOff = function(targets) {
+exports.lightsOff = function(targets) {
   if(targets === 'all') {
     var i = 0;
     for(var key in this.list) {
@@ -40,7 +43,7 @@ module.exports.lightsOff = function(targets) {
   Turns on all lights if a single bulb is on
   or turns all lights off if every bulb is on
 */
-module.exports.toggleLights = function(targets) {
+exports.toggleLights = function(targets) {
   if(targets === 'all') {
     return this.toggleLights(Object.keys(this.list));
   }
@@ -54,7 +57,7 @@ module.exports.toggleLights = function(targets) {
   return allOn ? this.lightsOff(targets):this.lightsOn(targets);
 },
 
-module.exports.setBrightness = function(targets, level) {
+exports.setBrightness = function(targets, level) {
   if(targets === 'all') {
     var i = 0;
     for(var key in this.list) {
@@ -72,7 +75,7 @@ module.exports.setBrightness = function(targets, level) {
   return 'setting brightness of ' + targets.length + ' lights to '+ level +'\n';
 },
 
-module.exports.setWarmWhite = function(targets) {
+exports.setWarmWhite = function(targets) {
   if(targets === 'all') {
     var i = 0;
     for(var key in this.list) {
@@ -90,7 +93,7 @@ module.exports.setWarmWhite = function(targets) {
   return 'setting ' + targets.length + ' lights to warm white\n';
 },
 
-module.exports.setColor = function(targets, colorValue) {
+exports.setColor = function(targets, colorValue) {
   //TODO: CHECK FOR IMPROPER INPUTS
   if(typeof colorValue === 'string' &&  colors[colorValue]) {
     colorValue = colors[colorValue];
@@ -114,7 +117,7 @@ module.exports.setColor = function(targets, colorValue) {
   return 'setting color of ' + targets.length + ' lights to '+ rgb +'\n';
 },
 
-module.exports.getDevices = function() {
+exports.getDevices = function() {
   var devList = [];
   var i = 0;
   for(var key in this.list) {
