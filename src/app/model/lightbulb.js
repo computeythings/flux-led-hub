@@ -16,103 +16,101 @@ const BLUE_CHUNK = 8;
 const BRIGHTNESS_CHUNK = 9;
 const KEEPALIVE_INTERVAL = 5000; // time in ms
 
-// Formula for adjusting brightness with RGB:
-// Fast: (0.299*R + 0.587*G + 0.114*B)
-// Slower: sqrt( 0.299*R^2 + 0.587*G^2 + 0.114*B^2 )
+module.exports = class WifiLedBulb{
+  constructor(ipaddr, name) {
+      var self = this;
+      this.name = name;
+      this.ipaddr = ipaddr;
+      this.powerState = NULL_STATE;
+      this.brightness = 0;
+      this.RGB = [0,0,0]; // This is the current RGB value of the bulb
+      this.colorBrightest = [255,255,255]; // This is the cached color of the bulb
+      this.isColor = false;
+      this.socket = require('net').Socket();
 
-module.exports = function (ipaddr, name) {
-    var self = this;
-    this.name = name;
-    this.ipaddr = ipaddr;
-    this.powerState = NULL_STATE;
-    this.brightness = 0;
-    this.RGB = [0,0,0]; // This is the current RGB value of the bulb
-    this.colorBrightest = [255,255,255]; // This is the cached color of the bulb
-    this.isColor = false;
-    this.socket = require('net').Socket();
+      this.socket.connect(5577, ipaddr)
+      .on('connect', () => refreshState(self.socket)) // to trigger data to get initial state
+      .on('data', (chunk) => {
+        var powerByte = chunk[POWER_CHUNK];
+        if(powerByte == ON_STATE && powerByte != self.powerState) {
+          self.powerState = ON_STATE;
+          console.log('[' + new Date().toLocaleString() + '] ' +
+            self.ipaddr + ' - ON');
+        }
+        else if(powerByte == OFF_STATE && powerByte != self.powerState) {
+          self.powerState = OFF_STATE;
+          console.log('[' + new Date().toLocaleString() + '] ' +
+            self.ipaddr + ' - OFF');
+        }
 
-    this.socket.connect(5577, ipaddr)
-    .on('connect', () => refreshState(self.socket)) // to trigger data to get initial state
-    .on('data', (chunk) => {
-      var powerByte = chunk[POWER_CHUNK];
-      if(powerByte == ON_STATE && powerByte != self.powerState) {
-        self.powerState = ON_STATE;
+        var r = chunk[RED_CHUNK];
+        var g = chunk[GREEN_CHUNK];
+        var b = chunk[BLUE_CHUNK];
+        self.RGB = [r,g,b];
+
+        var brightnessByte = chunk[BRIGHTNESS_CHUNK];
+        if(r == 0 && g == 0 && b == 0) {
+          self.brightness = parseInt((brightnessByte / 255)*100);
+          self.isColor = false;
+        } else {
+          self.isColor = true;
+          var rgbMax = Math.max.apply(Math, self.RGB);
+          if(rgbMax > 0)
+            var maxBrightness = 255/rgbMax;
+          else
+            var maxBrightness = 255/1;
+
+          self.colorBrightest = [
+            parseInt(self.RGB[0]*maxBrightness),
+            parseInt(self.RGB[1]*maxBrightness),
+            parseInt(self.RGB[2]*maxBrightness)
+          ];
+          self.brightness = parseInt((rgbMax / 255)*100);
+        }
+      })
+      .on('close', (had_error) => {
         console.log('[' + new Date().toLocaleString() + '] ' +
-          self.ipaddr + ' - ON');
-      }
-      else if(powerByte == OFF_STATE && powerByte != self.powerState) {
-        self.powerState = OFF_STATE;
+          'Refreshing socket ' + self.ipaddr);
+        self.powerState = NULL_STATE;
+        self.socket.connect(5577, self.ipaddr);
+      })
+      .on('error', () => {
         console.log('[' + new Date().toLocaleString() + '] ' +
-          self.ipaddr + ' - OFF');
-      }
+          'Failed to connect to ' + self.ipaddr);
+      });
 
-      var r = chunk[RED_CHUNK];
-      var g = chunk[GREEN_CHUNK];
-      var b = chunk[BLUE_CHUNK];
-      self.RGB = [r,g,b];
+      // This checks if bulbs are active every [KEEPALIVE_INTERVAL]
+      setInterval(() => {
+        if(this.powerState != NULL_STATE)  {
+          ping.sys.probe(this.ipaddr, (isAlive) => {
+            if(!isAlive) {
+              console.log('[' + new Date().toLocaleString() + '] ' +
+                self.ipaddr + ' - DISCONNECTED');
+              self.socket.destroy();
+            } else {
+              refreshState(self.socket);
+            }
+          });
+        }
+      }, KEEPALIVE_INTERVAL);
+  }
 
-      var brightnessByte = chunk[BRIGHTNESS_CHUNK];
-      if(r == 0 && g == 0 && b == 0) {
-        self.brightness = parseInt((brightnessByte / 255)*100);
-        self.isColor = false;
-      } else {
-        self.isColor = true;
-        var rgbMax = Math.max.apply(Math, self.RGB);
-        if(rgbMax > 0)
-          var maxBrightness = 255/rgbMax;
-        else
-          var maxBrightness = 255/1;
-
-        self.colorBrightest = [
-          parseInt(self.RGB[0]*maxBrightness),
-          parseInt(self.RGB[1]*maxBrightness),
-          parseInt(self.RGB[2]*maxBrightness)
-        ];
-        self.brightness = parseInt((rgbMax / 255)*100);
-      }
-    })
-    .on('close', (had_error) => {
-      console.log('[' + new Date().toLocaleString() + '] ' +
-        'Refreshing socket ' + self.ipaddr);
-      self.powerState = NULL_STATE;
-      self.socket.connect(5577, self.ipaddr);
-    })
-    .on('error', () => {
-      console.log('[' + new Date().toLocaleString() + '] ' +
-        'Failed to connect to ' + self.ipaddr);
-    });
-
-    // This checks if bulbs are active every [KEEPALIVE_INTERVAL]
-    setInterval(() => {
-      if(this.powerState != NULL_STATE)  {
-        ping.sys.probe(this.ipaddr, (isAlive) => {
-          if(!isAlive) {
-            console.log('[' + new Date().toLocaleString() + '] ' +
-              self.ipaddr + ' - DISCONNECTED');
-            self.socket.destroy();
-          } else {
-            refreshState(self.socket);
-          }
-        });
-      }
-    }, KEEPALIVE_INTERVAL);
-}
-
-exports.prototype = {
-  turnOn: function() {
+  turnOn() {
     var buffer = new Buffer(POWER_ON);
     this.socket.write(buffer);
-  },
-  turnOff: function() {
+  }
+  turnOff() {
     var buffer = new Buffer(POWER_OFF);
     this.socket.write(buffer);
-  },
-  setBrightness: function(level) {
+  }
+
+  // Formula for adjusting brightness with RGB:
+  // Fast: (0.299*R + 0.587*G + 0.114*B)
+  // Slower: sqrt( 0.299*R^2 + 0.587*G^2 + 0.114*B^2 )
+  setBrightness(level) {
     // adjust for inappropriate values
-    if(level > 100)
-      level = 100;
-    if(level < 0)
-      level = 0;
+    if (level > 100) level = 100;
+    if (level < 0) level = 0;
 
     if(this.isColor) {
       this.setColorBrightness(level);
@@ -120,8 +118,8 @@ exports.prototype = {
     else {
       this.setWarmWhiteBrightness(level);
     }
-  },
-  setColor: function(red, green, blue) {
+  }
+  setColor(red, green, blue) {
     // adjust for inappropriate
     if(red > 255)
       red = 255;
@@ -141,14 +139,12 @@ exports.prototype = {
       postfix]);
     this.colorBrightest = [red,green,blue];
     this.socket.write(buffer);
-  },
-  setColorBrightness: function(level) {
+  }
+  setColorBrightness(level) {
     if(level > 0) {
-      var adjustment = level/100;
-
-      var red = parseInt(this.colorBrightest[0]*adjustment);
-      var green = parseInt(this.colorBrightest[1]*adjustment)
-      var blue = parseInt(this.colorBrightest[2]*adjustment);
+      let red = parseInt(self.colorBrightest[0]*level/100*.299);
+      let green = parseInt(self.colorBrightest[1]*level/100*.587);
+      let blue = parseInt(self.colorBrightest[2]*level/100*.114);
 
       var postfix = (0x130 + red+green+blue) & 0xff;
       var buffer =  new Buffer([0x31, red, green, blue, 0x00, 0xf0, 0x0f,
@@ -161,14 +157,14 @@ exports.prototype = {
       this.socket.write(buffer);
     }
     this.brightness = level;
-  },
-  setWarmWhite: function() {
+  }
+  setWarmWhite() {
     var postfix = (0x4f + this.brightness) & 0xff;
     var buffer =  new Buffer([0x31, 0x00, 0x00, 0x00, this.brightness, 0x0f, 0x0f,
       postfix]);
     this.socket.write(buffer);
-  },
-  setWarmWhiteBrightness: function(level) {
+  }
+  setWarmWhiteBrightness(level) {
     if(level > 100 || level < 0)
       return false;
     var brightness = parseInt((level * 255)/100);
@@ -177,19 +173,19 @@ exports.prototype = {
       postfix]);
     this.brightness = level;
     this.socket.write(buffer);
-  },
-  state: function() {
+  }
+  state() {
     return {
       ipaddr: this.ipaddr,
       name: this.name,
       powerState: this.powerState,
       brightness: this.brightness
     }
-  },
-  isOn: function() {
+  }
+  isOn() {
     return this.powerState === ON_STATE;
   }
-};
+}
 
 function refreshState(socket) {
   var buffer = new Buffer(REFRESH_STATE);
