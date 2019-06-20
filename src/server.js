@@ -9,7 +9,25 @@ const controller = require('./app/controller');
 const devices = require('./app/devicemanager');
 const dns = require('dns');
 
+
+const CONFIG_TEMPLATE = JSON.stringify({
+    "listen": "0.0.0.0",
+    "port": 8000,
+    "lights": {
+    },
+    "apikey": ""
+}, null, 4);
+
 const CONFIG = path.resolve(__dirname, 'config/config.json');
+if(!fs.existsSync(CONFIG)) {
+  fs.writeFileSync(CONFIG, CONFIG_TEMPLATE, "utf8", function(err) {
+    if(err){
+      console.error('Failed to create config file.');
+      console.error('Check data volume permissions.');
+      process.exit(1);
+    }
+  });
+}
 const config = require(CONFIG);
 
 app.use(bodyParser.urlencoded({
