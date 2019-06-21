@@ -4,7 +4,7 @@
   "description": "Flux Wifi LED Hub",
   "main": "src/server.js",
   "scripts": {
-    "dev": "node ./node_modules/nodemon/bin/nodemon --verbose src/server.js",
+    "dev": "export CONFIG=~/config.json&&node ./node_modules/nodemon/bin/nodemon --verbose src/server.js",
     "start": "node src/server.js"
   },
   "keywords": [
