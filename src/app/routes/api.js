@@ -7,34 +7,35 @@ const lightbulbs = require('../controllers/lightbulbs.js');
 
 router.post('*', (req,res,next) => {
   console.log('POST:', req.url);
-  next();
+  return next();
 });
 
-router.post('/api', passport.authenticate('apikey'), (req, res) => {
+router.post('/api/*', passport.authenticate('apikey', {
+  session: false }), (req, res) => {
   switch(req.url) {
     case '/api/on':
       res.writeHead(202, {'Content-Type': 'text/plain'});
-      res.end(devices.lightsOn(req.body.target));
+      res.end(lightbulbs.lightsOn(req.body.target));
       break;
     case '/api/off':
       res.writeHead(202, {'Content-Type': 'text/plain'});
-      res.end(devices.lightsOff(req.body.target));
+      res.end(lightbulbs.lightsOff(req.body.target));
       break;
     case '/api/toggle':
       res.writeHead(202, {'Content-Type': 'text/plain'});
-      res.end(devices.toggleLights(req.body.target));
+      res.end(lightbulbs.toggleLights(req.body.target));
       break;
     case '/api/brightness':
       res.writeHead(202, {'Content-Type': 'text/plain'});
-      res.end(devices.setBrightness(req.body.target, req.body.brightness));
+      res.end(lightbulbs.setBrightness(req.body.target, req.body.brightness));
       break;
     case '/api/ww':
       res.writeHead(202, {'Content-Type': 'text/plain'});
-      res.end(devices.setWarmWhite(req.body.target));
+      res.end(lightbulbs.setWarmWhite(req.body.target));
       break;
     case '/api/color':
       res.writeHead(202, {'Content-Type': 'text/plain'});
-      res.end(devices.setColor(req.body.target, req.body.colorValue));
+      res.end(lightbulbs.setColor(req.body.target, req.body.colorValue));
       break;
     case '/api/scan':
       res.writeHead(202, {'Content-Type': 'text/plain'});
@@ -42,7 +43,7 @@ router.post('/api', passport.authenticate('apikey'), (req, res) => {
       break;
     case '/api/add':
       res.writeHead(202, {'Content-Type': 'text/plain'});
-      res.end(addLight(req.body.ipaddr));
+      res.end(lightbulbs.addLight(req.body.ipaddr, req.body.name));
     default:
       res.writeHead(404, {'Content-Type': 'text/plain'});
       res.end('Invalid Link!');
