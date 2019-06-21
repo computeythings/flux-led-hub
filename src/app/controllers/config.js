@@ -22,9 +22,7 @@ exports.getLights = () => {
 }
 
 exports.addLight = (addr, name) => {
-  console.log(addr, name)
   config.lights[name] = addr;
-  console.log(config);
   writeJsonToConfig(config)
 }
 

@@ -3,7 +3,8 @@ const passport = require('passport');
 const express = require('express');
 const router = express.Router();
 
-const lightbulbs = require('../controllers/lightbulbs.js');
+const WifiLedBulbs = require('../controllers/lightbulbs.js');
+const lightbulbs = new WifiLedBulbs();
 
 router.post('*', (req,res,next) => {
   console.log('POST:', req.url);
@@ -37,10 +38,13 @@ router.post('/api/*', passport.authenticate('apikey', {
       res.writeHead(202, {'Content-Type': 'text/plain'});
       res.end(lightbulbs.setColor(req.body.target, req.body.colorValue));
       break;
+    //TODO: SCAN API
+    /*
     case '/api/scan':
       res.writeHead(202, {'Content-Type': 'text/plain'});
       scanTo(res);
       break;
+      */
     case '/api/add':
       res.writeHead(202, {'Content-Type': 'text/plain'});
       res.end(lightbulbs.addLight(req.body.ipaddr, req.body.name));
