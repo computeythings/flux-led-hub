@@ -3,29 +3,6 @@ const fs = require('fs');
 
 const Keygen = require('../util/keygen.js');
 
-exports.validate = apikey => {
-  return apikey === config.apikey;
-}
-
-// This will only be run when the APIKEY line in config.json is empty
-function resetAPIKey() {
-  var apikey = Keygen(26); // 26 character API key
-  console.info('generated new API key: ' + apikey);
-  config.apikey = apikey;
-  return writeJsonToConfig(config);
-}
-exports.resetAPIKey = resetAPIKey;
-
-// Create usable WifiLedBulb objects from each light given in config
-exports.getLights = () => {
-  return config.lights;
-}
-
-exports.addLight = (addr, name) => {
-  config.lights[name] = addr;
-  writeJsonToConfig(config)
-}
-
 //
 // Read and populate config file
 //
@@ -49,7 +26,34 @@ if(!fs.existsSync(CONFIG_FILE)) {
 const config = require(CONFIG_FILE);
 // populate empty config file
 if(!config.apikey) {
-  resetAPIKey();
+  Config.resetAPIKey();
+}
+
+//
+//  Relevant exported methods
+//
+module.exports = class Config {
+  static validate(apikey) {
+      return apikey === config.apikey;
+  }
+
+  static resetAPIKey(length) {
+    if (!length) length = 26;
+    var apikey = Keygen(26); // 26 character API key
+    console.info('generated new API key: ' + apikey);
+    config.apikey = apikey;
+    return writeJsonToConfig(config);
+  }
+
+  // Create usable WifiLedBulb objects from each light given in config
+  static getLights() {
+    return config.lights;
+  }
+
+  static addLight(addr, name) {
+    config.lights[name] = addr;
+    return writeJsonToConfig(config)
+  }
 }
 
 function writeJsonToConfig(json) {
