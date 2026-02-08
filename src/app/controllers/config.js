@@ -24,10 +24,6 @@ if(!fs.existsSync(CONFIG_FILE)) {
   }
 }
 const config = require(CONFIG_FILE);
-// populate empty config file
-if(!config.apikey) {
-  Config.resetAPIKey();
-}
 
 //
 //  Relevant exported methods
@@ -66,4 +62,9 @@ function writeJsonToConfig(json) {
   });
   console.info('Config file updated.');
   return true;
+}
+
+// populate empty config file
+if(!config.apikey) {
+  Config.resetAPIKey();
 }

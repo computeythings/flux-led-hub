@@ -147,12 +147,25 @@ module.exports = class WifiLedBulbs {
   }
 
   addLight(addr, name) {
-    if(!addr) return 'No light specified.';
+    return new Promise((resolve, reject) => {
+    if(!addr) {
+      reject(new Error('No light specified.'));
+    }
     if(!name) name = addr;
     dns.lookup(addr, (err, ip, fam) => { // resolve any hostnames to IP
-      this.list[name] = new WifiLedBulb(ip, name);
-      config.addLight(ip, name);
+      WifiLedBulb.create(ip, name)
+      .then(bulb => {
+        console.log(`Connected to ${ip}!`, bulb.state());
+        this.list[name] = bulb;
+        config.addLight(ip, name);
+        resolve(`Successfully added: ${ip} - ${name}`);
+      })
+      .catch(err => {
+        console.error('Failed to connect:', err);
+        reject(err);
+      });
     });
+    })
   }
 
   hexToRGB(hex) {

@@ -25,8 +25,8 @@
     "dotenv": "^8.0.0",
     "express": "^4.17.1",
     "express-session": "^1.16.2",
-    "nodemon": "^1.19.1",
-    "passport": "^0.4.0",
+    "nodemon": "^3.1.11",
+    "passport": "^0.7.0",
     "passport-custom": "^1.0.5",
     "ping": "^0.2.2"
   }

@@ -15,6 +15,7 @@ const GREEN_CHUNK = 7;
 const BLUE_CHUNK = 8;
 const BRIGHTNESS_CHUNK = 9;
 const KEEPALIVE_INTERVAL = 5000; // time in ms
+const CONNECTION_TIMEOUT = 10000; // time in ms for connection timeout
 
 module.exports = class WifiLedBulb{
   constructor(ipaddr, name) {
@@ -95,12 +96,60 @@ module.exports = class WifiLedBulb{
       }, KEEPALIVE_INTERVAL);
   }
 
+  /**
+   * Static factory method to create a new WifiLedBulb instance
+   * @param {string} ipaddr - IP address of the bulb
+   * @param {string} name - Name identifier for the bulb
+   * @param {number} timeout - Connection timeout in ms (default: 10000)
+   * @returns {Promise<WifiLedBulb>} Promise that resolves with the connected bulb instance
+   */
+  static create(ipaddr, name, timeout = CONNECTION_TIMEOUT) {
+    return new Promise((resolve, reject) => {
+      const bulb = new WifiLedBulb(ipaddr, name);
+      let isResolved = false;
+      
+      // Set up timeout
+      const timeoutId = setTimeout(() => {
+        if (!isResolved) {
+          isResolved = true;
+          bulb.socket.destroy();
+          reject(new Error(`Connection timeout: Failed to connect to ${ipaddr} within ${timeout}ms`));
+        }
+      }, timeout);
+
+      // Listen for successful connection and initial state
+      const dataHandler = (chunk) => {
+        if (!isResolved && chunk[POWER_CHUNK] !== undefined) {
+          isResolved = true;
+          clearTimeout(timeoutId);
+          bulb.socket.removeListener('data', dataHandler);
+          bulb.socket.removeListener('error', errorHandler);
+          resolve(bulb);
+        }
+      };
+
+      // Listen for connection errors
+      const errorHandler = (err) => {
+        if (!isResolved) {
+          isResolved = true;
+          clearTimeout(timeoutId);
+          bulb.socket.removeListener('data', dataHandler);
+          bulb.socket.removeListener('error', errorHandler);
+          reject(new Error(`Failed to connect to ${ipaddr}: ${err.message}`));
+        }
+      };
+
+      bulb.socket.on('data', dataHandler);
+      bulb.socket.on('error', errorHandler);
+    });
+  }
+
   turnOn() {
-    var buffer = new Buffer(POWER_ON);
+    var buffer = Buffer.from(POWER_ON);
     this.socket.write(buffer);
   }
   turnOff() {
-    var buffer = new Buffer(POWER_OFF);
+    var buffer = Buffer.from(POWER_OFF);
     this.socket.write(buffer);
   }
 
@@ -135,24 +184,24 @@ module.exports = class WifiLedBulb{
       blue = 0;
 
     var postfix = (0x130 + red+green+blue) & 0xff;
-    var buffer =  new Buffer([0x31, red, green, blue, 0x00, 0xf0, 0x0f,
+    var buffer =  Buffer.from([0x31, red, green, blue, 0x00, 0xf0, 0x0f,
       postfix]);
     this.colorBrightest = [red,green,blue];
     this.socket.write(buffer);
   }
   setColorBrightness(level) {
     if(level > 0) {
-      let red = parseInt(self.colorBrightest[0]*level/100*.299);
-      let green = parseInt(self.colorBrightest[1]*level/100*.587);
-      let blue = parseInt(self.colorBrightest[2]*level/100*.114);
+      let red = parseInt(this.colorBrightest[0]*level/100*.299);
+      let green = parseInt(this.colorBrightest[1]*level/100*.587);
+      let blue = parseInt(this.colorBrightest[2]*level/100*.114);
 
       var postfix = (0x130 + red+green+blue) & 0xff;
-      var buffer =  new Buffer([0x31, red, green, blue, 0x00, 0xf0, 0x0f,
+      var buffer =  Buffer.from([0x31, red, green, blue, 0x00, 0xf0, 0x0f,
         postfix]);
       this.socket.write(buffer);
     } else {
       var postfix = (0x130 + 0+0+0) & 0xff;
-      var buffer =  new Buffer([0x31, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x0f,
+      var buffer =  Buffer.from([0x31, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x0f,
         postfix]);
       this.socket.write(buffer);
     }
@@ -160,7 +209,7 @@ module.exports = class WifiLedBulb{
   }
   setWarmWhite() {
     var postfix = (0x4f + this.brightness) & 0xff;
-    var buffer =  new Buffer([0x31, 0x00, 0x00, 0x00, this.brightness, 0x0f, 0x0f,
+    var buffer =  Buffer.from([0x31, 0x00, 0x00, 0x00, this.brightness, 0x0f, 0x0f,
       postfix]);
     this.socket.write(buffer);
   }
@@ -169,7 +218,7 @@ module.exports = class WifiLedBulb{
       return false;
     var brightness = parseInt((level * 255)/100);
     var postfix = (0x4f + brightness) & 0xff;
-    var buffer =  new Buffer([0x31, 0x00, 0x00, 0x00, brightness, 0x0f, 0x0f,
+    var buffer =  Buffer.from([0x31, 0x00, 0x00, 0x00, brightness, 0x0f, 0x0f,
       postfix]);
     this.brightness = level;
     this.socket.write(buffer);
@@ -188,6 +237,6 @@ module.exports = class WifiLedBulb{
 }
 
 function refreshState(socket) {
-  var buffer = new Buffer(REFRESH_STATE);
+  var buffer = Buffer.from(REFRESH_STATE);
   socket.write(buffer);
 }
